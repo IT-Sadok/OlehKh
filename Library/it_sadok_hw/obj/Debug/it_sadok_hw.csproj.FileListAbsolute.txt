@@ -1,0 +1,7 @@
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\bin\Debug\it_sadok_hw.exe.config
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\bin\Debug\it_sadok_hw.exe
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\bin\Debug\it_sadok_hw.pdb
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\obj\Debug\it_sadok_hw.csproj.AssemblyReference.cache
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\obj\Debug\it_sadok_hw.csproj.CoreCompileInputs.cache
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\obj\Debug\it_sadok_hw.exe
+C:\Users\kharc\source\repos\it_sadok_hw\it_sadok_hw\obj\Debug\it_sadok_hw.pdb
