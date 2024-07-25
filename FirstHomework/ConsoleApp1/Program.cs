@@ -1,22 +1,44 @@
-﻿
-int _StartedDeposit = 10000; // the amount of books when Library opened
+﻿LibraryCount reader1 = new LibraryCount();
+Messages Mes1 = new Messages();
+Validator Fig1 = new Validator();
 
-LibraryCount reader1 = new LibraryCount(); // new object
-Console.WriteLine("Welcome to our library! Do you want to take a book or you want to give it back?");
-string reply = Console.ReadLine(); // receiving a reader's reply
+Console.WriteLine("Welcome to our library! Do you want to take a book or give it back?");
 
-// logic if reader wants to take a book
-if (reply != null && reply.Contains("take"))
+string actionReply = Console.ReadLine();
+
+switch (actionReply)
 {
-    Console.WriteLine("How many books do you want to take? Our library have a huge amount of books. It's 10 000 items!");
-    int ReplyTake = Int32.Parse(Console.ReadLine());
-    reader1.Add(ReplyTake, _StartedDeposit); // call method from class Library to decrease amount of books
-}
-// logic if reader wants to give it back
+    case "take":
+        Mes1.PrintTakeQuestion();
+        string booksReply = Console.ReadLine();
+        bool isInt1 = Fig1.TryParseInt(booksReply, out int number);
+        if (isInt1)
+        {
+            int result = reader1.Remove(number, reader1.Deposit);
+            Mes1.PrintCalculationResult(result);
+        }
+        else
+        {
+            Console.WriteLine("Please, put just a number!");
+        }
+        break;
 
-else if (reply != null && reply.Contains("back"))
-{
-    Console.WriteLine("How many books do you want to give back?");
-    int ReplyGive = Int32.Parse(Console.ReadLine());
-    reader1.Remove(ReplyGive, _StartedDeposit); // call method from class Library to increase amount of books
+    case "back":
+        Mes1.PrintGiveBackQuestion();
+        string booksReply2 = Console.ReadLine();
+        bool isInt2 = Fig1.TryParseInt(booksReply2, out int number2);
+        if (isInt2)
+        {
+            int result = reader1.Add(number2, reader1.Deposit);
+            Mes1.PrintCalculationResult(result);
+        }
+        else
+        {
+            Console.WriteLine("Please, put just a number!");
+        }
+        break;
+
+    default:
+        Console.WriteLine("Sorry! What did you just say?");
+        break;
 }
