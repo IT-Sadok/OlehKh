@@ -1,33 +1,38 @@
-﻿class Library
+﻿using System;
+using System.Collections.Generic;
+
+public class Library
 {
-    // constructor for initialilizing
-    public Library()
+    public int Balance { get; private set; } = 0;
+
+    public List<Media> Items { get; private set; } = new List<Media>();
+
+    private IMediaFactory _mediaFactory;
+
+    public Library() { }
+
+    public int GetBalance()
     {
-        Deposit = _startDeposit;
-        ListOfBooks = new List<Book>();
+        return Balance;
     }
 
-    // Deposit
-    private int _startDeposit = 10000;
-
-    public int Deposit { get; private set; }
-
-    // List of Books
-    public List<Book> ListOfBooks {get; private set; }
-
-    // Adding book's info to Library
-    public void AddBooksInfo(Book book)
+    public void SetBalance(int newBalance)
     {
-        ListOfBooks.Add(book);
+        Balance = newBalance;
     }
 
-    // DisplayReceivedOrTakenBooks()
-    public void DisplayBooks()
+    public Library(IMediaFactory mediaFactory)
     {
-        foreach (var book in ListOfBooks)
-        {
-            book.DisplayBookInfo();
-        }
+        _mediaFactory = mediaFactory;
     }
 
+    public int Remove(int number, int startDeposit) // call method if reader's reply has "take"
+    {
+        return Balance = Balance - number;
+    }
+
+    public int Add(int number, int startedDeposit) // call method if reader's reply has "back"
+    {
+        return Balance = Balance + number;
+    }
 }

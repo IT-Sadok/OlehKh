@@ -1,21 +1,16 @@
-﻿class Book
+﻿public class Book: Media
 {
-    // Properties specific to a Book
-    public string Title { get; set; }
     public string Author { get; set; }
 
-    // Constructor to initialize Book properties
-    public Book(string title, string author)
+    public Book() { }
+
+    public Book(string title, string author) : base(title)
     {
-        Title = title;
         Author = author;
     }
 
-    // DisplayBookInfo
-    public void DisplayBookInfo()
+    public override string ToString()
     {
-        Console.WriteLine($"Title: {Title}, Author: {Author}");
+        return $"{Title} by {Author}";
     }
-
-
 }

@@ -1,55 +1,99 @@
-﻿CalculationBooksFlow reader1 = new CalculationBooksFlow();
-Logger Log1 = new Logger();
-Validator Fig1 = new Validator();
-Library library1 = new Library();
-Top5BooksToGet Top5 = new Top5BooksToGet();
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using static System.Reflection.Metadata.BlobBuilder;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-Console.WriteLine("Welcome to our library! Do you want to take a book or give it back?");
-
-string? actionReply = Console.ReadLine();
-
-int number; // for further calculations(number of books)
-
-switch (actionReply)
+class Program
 {
-    case "take":
-        Log1.PrintTakeQuestion();        ;
-        if (Fig1.TryParseInt(Log1.GetReplyHowManyBooks(), out number))
-        {
-            int result = reader1.Remove(number);
-            Log1.GiveListOfBestBooks();
-            Top5.PrintBooks();
-            Log1.PrintCalculationResult(result);
-        }
-        else
-        {
-            Console.WriteLine("Please, put just a number!");
-        }
-        break;
+    public static async Task Main(string[] args)
+    {
+        var fileHandler = new FileHandler();
+        var loggerFile = new LoggerFile();
+        List<Book> books = new List<Book>();
+        var logger = new Logger();
+        var validator = new Validator();
+        var library = new Library();
 
-
-    case "back":
-        Log1.PrintGiveBackQuestion();
-        if (Fig1.TryParseInt(Log1.GetReplyHowManyBooks(), out number))
+        int startedDeposit = 0;
+        // Loading and saving books to file
+        try
         {
-            int result = reader1.Add(number);
-            Log1.GetListOfBooks();
-            library1.AddBooksInfo(new Book("On the Origin of Species", "Charles Darwin"));
-            library1.AddBooksInfo(new Book("The Great Gatsby", "F SCOTT FITZGERALD"));
-            library1.AddBooksInfo(new Book("The Catcher In The Rye", "J.D. SALINGER"));
-            library1.AddBooksInfo(new Book("1984", "GEORGE ORWEL"));
-            library1.AddBooksInfo(new Book("Lord Of The Rings Trilogy", "J.R.R. TOLKIEN"));
-            library1.DisplayBooks();
+            books = await fileHandler.ReadJsonAsync<List<Book>>(fileHandler._loadFilePath);
+            Console.WriteLine("Books have been loaded.");
 
-            Log1.PrintCalculationResult(result);
+            await fileHandler.SaveJsonAsync(fileHandler._saveFilePath, books);
+            Console.WriteLine("Books have been saved.");
+            startedDeposit = books.Count;
         }
-        else
+        catch (Exception ex)
         {
-            Console.WriteLine("Please, put just a number!");
+            loggerFile.LogError(ex, "An error occurred while processing books.");
+            Console.WriteLine($"An error occurred: {ex.Message}");
         }
-        break;
 
-    default:
-        Console.WriteLine("Sorry! What did you just say?");
-        break;
+        // making a collection of NEW BOOKS according to database file (last 5 records)
+        try
+        {
+            var collectionsOfBooks = new CollectionsOfBooks(books, fileHandler._saveFilePath);
+        }
+        catch (Exception ex)
+        {
+            loggerFile.LogError(ex, "An error occurred while creating the collections of books.");
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+
+        int number = 0;
+
+        if (library.GetBalance() == 0) // check if balance zero, so it's our first client
+        {
+            library.SetBalance(startedDeposit);
+            Console.WriteLine("Welcome to our library! What book would you like to take?");
+            Console.WriteLine("Clients reply...");
+            logger.PrintTakeQuestion(library.Balance);
+            if (validator.TryParseInt(logger.GetReplyHowManyBooks(), out number))
+            {
+                int result = library.Remove(number, library.Balance);
+                logger.PrintCalculationResult(result);
+            }
+            else
+            {
+                Console.WriteLine("Please, put just a number!");
+            }
+        }
+        else if (library.GetBalance() > 0)
+        {
+            Console.WriteLine("Welcome to our library! Would you like to take a book or give it back");
+            string? actionReply = Console.ReadLine();
+
+            switch (actionReply)
+            {
+                case "take":
+                    if (validator.TryParseInt(logger.GetReplyHowManyBooks(), out number))
+                    {
+                        int result = library.Remove(number, library.Balance);
+                        logger.PrintCalculationResult(result);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please, put just a number!");
+                    }
+                    break;
+                
+                case "back":
+                    logger.PrintGiveBackQuestion();
+                    if (validator.TryParseInt(logger.GetReplyHowManyBooks(), out number))
+                    {
+                        int result = library.Add(number, library.Balance);
+                        logger.PrintCalculationResult(result);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please, put just a number!");
+                    }
+                    break;
+            }
+        }
+    }
 }

@@ -1,9 +1,9 @@
 ﻿class Logger
 {
     // first message for taking book
-    public void PrintTakeQuestion()
+    public void PrintTakeQuestion(int Balance)
     {
-        Console.WriteLine("How many books do you want to take? Our library have a huge amount of books. It's 10 000 items!");
+        Console.WriteLine($"How many books do you want to take? For now our library's balance is {Balance} books.");
     }
 
     // first message for giving back book
