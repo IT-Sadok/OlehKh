@@ -1,0 +1,11 @@
+04.08.2024 14:04:10: An error occurred while processing books. 
+Exception: Could not find file 'C:\Users\kharc\source\repos\1\ConsoleApp1\books.txt'.
+StackTrace:    at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at FileHandler.ReadJsonAsync[T](String _loadFilePath) in C:\Users\kharc\source\repos\1\ConsoleApp1\FileHandler.cs:line 28
+   at Program.Main(String[] args) in C:\Users\kharc\source\repos\1\ConsoleApp1\Program.cs:line 18
