@@ -2,10 +2,28 @@
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
+<<<<<<< HEAD
+using System.Xml.Linq;
+=======
+>>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
 using Newtonsoft.Json;
 
 public class ParcelManager
 {
+<<<<<<< HEAD
+    public string _filePath { get; private set; } = @"C:\Users\kharc\source\repos\SecondHomework\Logistic\Logistic\Parcels.json";
+
+    private List<Parcel> parcels = new List<Parcel>();
+
+    public ParcelManager()
+    {
+
+    }
+
+    public string GetPath()
+    {
+        return _filePath;
+=======
     private const string _filePath = @"C:\Users\kharc\source\repos\SecondHomework\Logistic\Logistic\Parcels.json";
 
     private List<Parcel> parcels;
@@ -49,6 +67,7 @@ public class ParcelManager
         var parcel = new Parcel(Guid.NewGuid(), name, recipient, destination);
         parcels.Add(parcel);
         SaveParcels();
+>>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
     }
 
     public void SaveParcels()
@@ -57,6 +76,11 @@ public class ParcelManager
         File.WriteAllText(_filePath, json);
     }
 
+<<<<<<< HEAD
+    public void GetParcelsInfoAndSave()
+    {
+        string? answer = Console.ReadLine();
+=======
     public void CheckIfDeleteAndRemove()
     {
         string? answer = Console.ReadLine();
@@ -104,15 +128,33 @@ public class ParcelManager
     {
         Logger.GetNumberOfParcels();
         string? answer = Console.ReadLine();
+>>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
         if (int.TryParse(answer, out int number))
         {
             if (number == 1)
             {
+<<<<<<< HEAD
+                parcels.Add(Parcel.GetParcelDetailsFromInput());
+                SaveParcels();
+                Console.WriteLine("Saved");
+            }
+            else if (number > 1)
+            {
+                for (int i = 0; i < number; i++)
+                {
+                    parcels.Add(Parcel.GetParcelDetailsFromInput());
+                    Console.WriteLine("Saved");
+                }
+                SaveParcels();
+            }
+            else if (number == 0)
+=======
                 AddParcelFromInput();
                 Console.WriteLine("Saved");
                 SaveParcels();
             }
             else if (answer?.ToLower() == "no")
+>>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
             {
                 Console.WriteLine("So, if you have nothing to send why do you here? ");
             }
@@ -120,6 +162,11 @@ public class ParcelManager
             {
                 Console.WriteLine("Don't be silent, i've got a lot of work");
             }
+<<<<<<< HEAD
+        }
+    }
+}
+=======
             else if (number > 1)
             {
                 for (int i = 0; i < number; i++)
@@ -132,3 +179,4 @@ public class ParcelManager
         }Display();
     }
 }
+>>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
