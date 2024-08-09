@@ -1,0 +1,14 @@
+[
+  {
+    "Id": "6e254522-db24-40e9-846f-1f79b343da07",
+    "Name": "box1",
+    "Recipient": "mom",
+    "Destination": "home"
+  },
+  {
+    "Id": "9c383ba2-7280-4d8a-81f9-1ed2f97d7065",
+    "Name": "box2",
+    "Recipient": "mom",
+    "Destination": "home"
+  }
+]
