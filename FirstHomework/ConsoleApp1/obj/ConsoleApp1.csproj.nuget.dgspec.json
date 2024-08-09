@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\kharc\\source\\repos\\1\\ConsoleApp1\\ConsoleApp1.csproj": {}
+    "C:\\Users\\kharc\\source\\repos\\OlehKh\\ConsoleApp1\\ConsoleApp1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\kharc\\source\\repos\\1\\ConsoleApp1\\ConsoleApp1.csproj": {
+    "C:\\Users\\kharc\\source\\repos\\OlehKh\\ConsoleApp1\\ConsoleApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\kharc\\source\\repos\\1\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectUniqueName": "C:\\Users\\kharc\\source\\repos\\OlehKh\\ConsoleApp1\\ConsoleApp1.csproj",
         "projectName": "ConsoleApp1",
-        "projectPath": "C:\\Users\\kharc\\source\\repos\\1\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectPath": "C:\\Users\\kharc\\source\\repos\\OlehKh\\ConsoleApp1\\ConsoleApp1.csproj",
         "packagesPath": "C:\\Users\\kharc\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\kharc\\source\\repos\\1\\ConsoleApp1\\obj\\",
+        "outputPath": "C:\\Users\\kharc\\source\\repos\\OlehKh\\ConsoleApp1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\kharc\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -45,12 +45,6 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "dependencies": {
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.3, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
