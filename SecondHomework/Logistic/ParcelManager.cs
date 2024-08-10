@@ -15,16 +15,6 @@ public class ParcelManager
         parcels = new List<Parcel>();
     }
 
-    public void SetParcels(List<Parcel> parcelsList)
-    {
-        parcels = parcelsList;
-    }
-
-    public List<Parcel> GetParcels()
-    {
-        return parcels;
-    }
-
     public void GetParcelsInfoAndSave()
     {
         string? answer = Console.ReadLine();
