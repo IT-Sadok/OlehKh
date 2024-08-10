@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 ﻿using System.Collections.Generic;
 using System;
-=======
-﻿using System;
->>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
 
 public class Parcel
 {
@@ -20,7 +16,6 @@ public class Parcel
         Destination = destination;
     }
 
-<<<<<<< HEAD
     public static Parcel GetParcelDetailsFromInput()
     {
         Console.Write("What are you planning to send? ");
@@ -38,8 +33,6 @@ public class Parcel
         return new Parcel(Guid.NewGuid(), name, recipient, destination);
     }
 
-=======
->>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
     public override string ToString()
     {
         return $"ID: {Id}, Name: {Name}, Recipient: {Recipient}, Destination: {Destination}";

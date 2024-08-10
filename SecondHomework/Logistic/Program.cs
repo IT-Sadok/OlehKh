@@ -1,11 +1,24 @@
-<<<<<<< HEAD
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 ParcelManager parcelManager = new ParcelManager();
 Logger logger = new Logger();
 
+FileManager fileManager = new FileManager(new List<Parcel>());
+List<Parcel> parcels = fileManager.Read();
+fileManager = new FileManager(parcels);
+
 logger.GetNumberOfParcels();
 parcelManager.GetParcelsInfoAndSave();
+logger.AskIfNeedToRemove();
+fileManager.CheckIfDeleteAndRemove();
+
+
+
+
+// parcelManager.DisplayParcels();
+// logger.AskIfNeedToRemove();
+
 
 
 
@@ -16,11 +29,3 @@ parcelManager.GetParcelsInfoAndSave();
 // delete logic
 // reaad json file
 // display the result
-=======
-﻿ParcelManager parcelManager = new ParcelManager();
-
-
-parcelManager.GetNumberAndSave();
-Logger.AskIfNeedToRemove();
-parcelManager.CheckIfDeleteAndRemove();
->>>>>>> 1fe32bed81a8839ba1ec30533e33c95539a4bb66
