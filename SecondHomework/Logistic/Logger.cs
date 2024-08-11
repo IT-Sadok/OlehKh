@@ -1,6 +1,6 @@
 ﻿class Logger
 {
-    public void GetNumberOfParcels()
+    public void GetAmountOfParcels()
     {
         Console.WriteLine("How many parcels are you planning to send? ");
     }
@@ -10,7 +10,7 @@
         Console.WriteLine("Would you like to remove some parcels (yes/no)?");
     }
 
-    public static void CheckForIdToRemove()
+    public void CheckForIdToRemove()
     {
         Console.WriteLine("Enter please id of the parcel: ");
     }

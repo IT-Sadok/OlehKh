@@ -1,14 +1,8 @@
 [
   {
-    "Id": "161dce00-6fd6-427b-9906-474988547acd",
+    "Id": "24a44b96-70ff-478a-85ba-0e1cffa56504",
     "Name": "1",
     "Recipient": "a",
     "Destination": "a"
-  },
-  {
-    "Id": "7fb0fd9c-1ff9-413f-bec6-ab763129eb58",
-    "Name": "3",
-    "Recipient": "c",
-    "Destination": "c"
   }
 ]

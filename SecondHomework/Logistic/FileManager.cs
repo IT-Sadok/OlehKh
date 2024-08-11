@@ -1,19 +1,23 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
-class FileManager: ParcelManager
+public class FileManager
 {
     private const string _filePath = @"C:\Users\kharc\source\repos\SecondHomework\Logistic\Parcels.json";
-    private List<Parcel> parcels;
-
-    public FileManager(List<Parcel> parcelsList)
-    {
-        parcels = parcelsList;
-    }
 
     public void Save(List<Parcel> parcels)
     {
-        var json = JsonConvert.SerializeObject(parcels, Newtonsoft.Json.Formatting.Indented);
-        File.WriteAllText(_filePath, json);
+        try
+        {
+            var json = JsonConvert.SerializeObject(parcels, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(_filePath, json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving parcels to file: {ex.Message}");
+        }
     }
 
     public List<Parcel> Read()
@@ -31,104 +35,42 @@ class FileManager: ParcelManager
         }
     }
 
-    public void Remove(Guid id)
+    public void Remove(Guid id, List<Parcel> parcelsList)
     {
-        parcels = Read();
-        var parcel = parcels.Find(p => p.Id == id);
-        if (parcel != null)
+        try
         {
-            parcels.Remove(parcel);
-            Save(parcels);
-            Console.WriteLine($"Parcel with ID {id} has been removed.");
-            Console.WriteLine("Updated parcels are:");
-            DisplayParcels(parcels);
-        }
-        else
-        {
-            Console.WriteLine($"Parcel with ID {id} not found.");
-        }
-
-    }
-
-    public void CheckIfDeleteAndRemove()
-    {
-        string? answer = Console.ReadLine();
-        if (answer?.ToLower() == "yes")
-        {
-            Logger.CheckForIdToRemove();
-            string? id = Console.ReadLine();
-            if (Guid.TryParse(id, out Guid Id))
+            Parcel parcelToRemove = parcelsList.Find(p => p.Id == id);
+            if (parcelToRemove != null)
             {
-                Remove(Id);
+                parcelsList.Remove(parcelToRemove);
+                Save(parcelsList);
+                Console.WriteLine($"Parcel with ID: {id} removed successfully.");
             }
             else
             {
-                Console.WriteLine("Invalid ID format.");
+                Console.WriteLine($"Parcel with ID: {id} not found.");
             }
         }
-        else if (answer?.ToLower() == "no")
+        catch (Exception ex)
         {
-            Console.WriteLine("Have a nice day!");
-        }
-        else if (string.IsNullOrWhiteSpace(answer))
-        {
-            Console.WriteLine("Don't be silent, i've got a lot of work");
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
-/*
-class DeletingParcels
-{
-    public void CheckIfDeleteAndRemove()
-    {
-        string? answer = Console.ReadLine();
-        if (answer?.ToLower() == "yes")
-        {
-            Logger.CheckForIdToRemove();
-            string? id = Console.ReadLine();
-            if (Guid.TryParse(id, out Guid Id))
-            {
-                DeleteParcels(Id);
-                Console.WriteLine("Updated parcels are:");
-            }
-            else
-            {
-                Console.WriteLine("Invalid ID format.");
-            }
-        }
-        else if (answer?.ToLower() == "no")
-        {
-            Console.WriteLine("Have a nice day!");
-        }
-        else if (string.IsNullOrWhiteSpace(answer))
-        {
-            Console.WriteLine("Don't be silent, i've got a lot of work");
+            Console.WriteLine($"Error saving parcels to file: {ex.Message}");
         }
     }
 
-    public void DeleteParcels(Guid id)
+    public void DisplayParcels()
     {
-        var parcel = parcels.Find(p => p.Id == id);
-        if (parcel != null)
+        List<Parcel> parcels = Read();
+
+        if (parcels.Count > 0)
         {
-            parcels.Remove(parcel);
-            SaveParcels();
-            Console.WriteLine($"Parcel with ID {id} has been removed.");
+            foreach (var parcel in parcels)
+            {
+                Console.WriteLine(parcel.ToString());
+            }
         }
         else
         {
-            Console.WriteLine($"Parcel with ID {id} not found.");
+            Console.WriteLine("No parcels to display.");
         }
     }
 }
-}
-*/
