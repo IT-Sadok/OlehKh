@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 
 ParcelManager parcelManager = new ParcelManager();
 Logger logger = new Logger();
+FileManager fileManager = new FileManager();
 
 
 logger.GetAmountOfParcels();
@@ -16,9 +18,11 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
             Parcel newParcel = GetParcelDetailsFromInput();
             parcelManager.AddParcel(newParcel);
         }
-        parcelManager.SaveParcels();
         Console.WriteLine("Parcel added successfully.");
-        parcelManager.DisplayParcels();
+        foreach (var parcel in parcelManager.ReadParcels())
+        {
+            Console.WriteLine(parcel.ToString());
+        }
     }
     else
     {
@@ -39,9 +43,18 @@ if (answer == "yes")
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
-        parcelManager.RemoveParcels(id);
-        parcelManager.SaveParcels();
-        parcelManager.DisplayParcels();
+        List<Parcel> parcel = parcelManager.ReadParcels();
+        bool isRemoved = parcelManager.RemoveParcel(id, parcel, out string message);
+        Console.WriteLine(message);
+
+        if (isRemoved)
+        {
+            fileManager.Save(parcel);
+        }
+        foreach (var parcels in parcelManager.ReadParcels())
+        {
+            Console.WriteLine(parcels.ToString());
+        }
     }
 }
 else

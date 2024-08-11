@@ -12,10 +12,6 @@
     public void AddParcel(Parcel parcel)
     {
         parcels.Add(parcel);
-    }
-
-    public void SaveParcels()
-    {
         fileManager.Save(parcels);
     }
 
@@ -25,13 +21,28 @@
         return parcels;
     }
 
-    public void RemoveParcels(Guid id)
+    public bool RemoveParcel(Guid id, List<Parcel> parcelsList, out string message)
     {
-        fileManager.Remove(id, parcels);
-    }
-
-    public void DisplayParcels()
-    {
-        fileManager.DisplayParcels();
+        try
+        {
+            Parcel parcelToRemove = parcelsList.Find(p => p.Id == id);
+            if (parcelToRemove != null)
+            {
+                parcelsList.Remove(parcelToRemove);
+                fileManager.Save(parcelsList);
+                message = $"Parcel with ID: {id} removed sucessfully.";
+                return true;
+            }
+            else
+            {
+                message = $"Parcel with ID: {id} not found.";
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error saving parcels to file: {ex.Message}";
+            return false;
+        }
     }
 }

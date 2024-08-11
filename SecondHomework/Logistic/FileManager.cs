@@ -16,7 +16,7 @@ public class FileManager
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving parcels to file: {ex.Message}");
+            throw new Exception($"Error saving parcels to file: {ex.Message}", ex);
         }
     }
 
@@ -30,47 +30,7 @@ public class FileManager
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error reading the file: {ex.Message}");
-            return new List<Parcel>();
-        }
-    }
-
-    public void Remove(Guid id, List<Parcel> parcelsList)
-    {
-        try
-        {
-            Parcel parcelToRemove = parcelsList.Find(p => p.Id == id);
-            if (parcelToRemove != null)
-            {
-                parcelsList.Remove(parcelToRemove);
-                Save(parcelsList);
-                Console.WriteLine($"Parcel with ID: {id} removed successfully.");
-            }
-            else
-            {
-                Console.WriteLine($"Parcel with ID: {id} not found.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error saving parcels to file: {ex.Message}");
-        }
-    }
-
-    public void DisplayParcels()
-    {
-        List<Parcel> parcels = Read();
-
-        if (parcels.Count > 0)
-        {
-            foreach (var parcel in parcels)
-            {
-                Console.WriteLine(parcel.ToString());
-            }
-        }
-        else
-        {
-            Console.WriteLine("No parcels to display.");
+            throw new Exception($"Error saving parcels to file: {ex.Message}", ex);
         }
     }
 }
