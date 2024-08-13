@@ -9,28 +9,18 @@ public class FileManager
 
     public void Save(List<Parcel> parcels)
     {
-        try
-        {
-            var json = JsonConvert.SerializeObject(parcels, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText(_filePath, json);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception($"Error saving parcels to file: {ex.Message}", ex);
-        }
+        var json = JsonConvert.SerializeObject(parcels, Newtonsoft.Json.Formatting.Indented);
+        File.WriteAllText(_filePath, json);
     }
 
     public List<Parcel> Read()
     {
-        try
+        if (!File.Exists(_filePath))
         {
-            var json = File.ReadAllText(_filePath);
-            List<Parcel> parcelsList = JsonConvert.DeserializeObject<List<Parcel>>(json) ?? new List<Parcel>();
-            return parcelsList;
+            Save(new List<Parcel>());
         }
-        catch (Exception ex)
-        {
-            throw new Exception($"Error saving parcels to file: {ex.Message}", ex);
-        }
+        var json = File.ReadAllText(_filePath);
+        List<Parcel> parcelsList = JsonConvert.DeserializeObject<List<Parcel>>(json) ?? new List<Parcel>();
+        return parcelsList;
     }
 }

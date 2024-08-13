@@ -9,6 +9,12 @@
         parcels = new List<Parcel>();
     }
 
+    public ParcelManager(FileManager fileManager)
+    {
+        this.fileManager = fileManager;
+        parcels = fileManager.Read();
+    }
+
     public void AddParcel(Parcel parcel)
     {
         parcels.Add(parcel);
@@ -17,7 +23,6 @@
 
     public List<Parcel> ReadParcels()
     {
-        parcels = fileManager.Read();
         return parcels;
     }
 
@@ -25,7 +30,7 @@
     {
         try
         {
-            Parcel parcelToRemove = parcelsList.Find(p => p.Id == id);
+            Parcel? parcelToRemove = parcelsList.Find(p => p.Id == id);
             if (parcelToRemove != null)
             {
                 parcelsList.Remove(parcelToRemove);
@@ -35,8 +40,7 @@
             }
             else
             {
-                message = $"Parcel with ID: {id} not found.";
-                return false;
+                throw new Exception($"Parcel with ID: {id} not found.");
             }
         }
         catch (Exception ex)

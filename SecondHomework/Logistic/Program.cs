@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-ParcelManager parcelManager = new ParcelManager();
 Logger logger = new Logger();
 FileManager fileManager = new FileManager();
-
+ParcelManager parcelManager = new ParcelManager(fileManager);
 
 logger.GetAmountOfParcels();
 string? AmountOfParcels = Console.ReadLine();
@@ -15,13 +14,27 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
     {
         for (int i = 0; i < amountOfParcels; i++)
         {
-            Parcel newParcel = GetParcelDetailsFromInput();
-            parcelManager.AddParcel(newParcel);
+            try
+            {
+                Parcel newParcel = GetParcelDetailsFromInput();
+                parcelManager.AddParcel(newParcel);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
         }
         Console.WriteLine("Parcel added successfully.");
-        foreach (var parcel in parcelManager.ReadParcels())
+        try
         {
-            Console.WriteLine(parcel.ToString());
+            foreach (var parcel in parcelManager.ReadParcels())
+            {
+                Console.WriteLine(parcel.ToString());
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred while reading parcels: {ex.Message}");    
         }
     }
     else
