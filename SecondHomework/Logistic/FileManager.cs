@@ -5,7 +5,7 @@ using System.IO;
 
 public class FileManager
 {
-    private const string _filePath = @"C:\Users\kharc\source\repos\SecondHomework\Logistic\Parcels.json";
+    private const string _filePath = @"Parcels.json";
 
     public void Save(List<Parcel> parcels)
     {

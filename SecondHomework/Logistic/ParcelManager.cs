@@ -1,52 +1,52 @@
 ﻿public class ParcelManager
 {
 
-    private List<Parcel> parcels = new List<Parcel>();
-    private FileManager fileManager = new FileManager();
+    private List<Parcel> _parcels = new List<Parcel>();
+    private FileManager _fileManager = new FileManager();
 
     public ParcelManager()
     {
-        parcels = new List<Parcel>();
+        _parcels = new List<Parcel>();
     }
 
     public ParcelManager(FileManager fileManager)
     {
-        this.fileManager = fileManager;
-        parcels = fileManager.Read();
+        _fileManager = fileManager;
+        _parcels = fileManager.Read();
     }
 
     public void AddParcel(Parcel parcel)
     {
-        parcels.Add(parcel);
-        fileManager.Save(parcels);
+        _parcels.Add(parcel);
+        _fileManager.Save(_parcels);
     }
 
-    public List<Parcel> ReadParcels()
+    public List<Parcel> GetParcels()
     {
-        return parcels;
+        return _parcels;
     }
 
-    public bool RemoveParcel(Guid id, List<Parcel> parcelsList, out string message)
-    {
+    public Result RemoveParcel(Guid id, List<Parcel> parcelsList)
+    {   
+        Result result = new Result();
         try
         {
             Parcel? parcelToRemove = parcelsList.Find(p => p.Id == id);
             if (parcelToRemove != null)
             {
                 parcelsList.Remove(parcelToRemove);
-                fileManager.Save(parcelsList);
-                message = $"Parcel with ID: {id} removed sucessfully.";
-                return true;
+                _fileManager.Save(parcelsList);
+                result.SetResult(true, $"Parcel with ID: {id} removed successfully.");
             }
             else
             {
-                throw new Exception($"Parcel with ID: {id} not found.");
+                result.SetResult(false, $"Parcel with ID: {id} not found.");
             }
         }
         catch (Exception ex)
         {
-            message = $"Error saving parcels to file: {ex.Message}";
-            return false;
+            result.SetResult(false, $"Error saving parcels to file: {ex.Message}");
         }
+        return result;
     }
 }

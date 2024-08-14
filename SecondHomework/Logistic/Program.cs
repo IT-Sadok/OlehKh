@@ -27,7 +27,7 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
         Console.WriteLine("Parcel added successfully.");
         try
         {
-            foreach (var parcel in parcelManager.ReadParcels())
+            foreach (var parcel in parcelManager.GetParcels())
             {
                 Console.WriteLine(parcel.ToString());
             }
@@ -56,15 +56,16 @@ if (answer == "yes")
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
-        List<Parcel> parcel = parcelManager.ReadParcels();
-        bool isRemoved = parcelManager.RemoveParcel(id, parcel, out string message);
-        Console.WriteLine(message);
+        List<Parcel> parcel = parcelManager.GetParcels();
+        Result result = parcelManager.RemoveParcel(id, parcel);
+        bool isRemoved = result.Success;
+        Console.WriteLine(result.Message);
 
         if (isRemoved)
         {
             fileManager.Save(parcel);
         }
-        foreach (var parcels in parcelManager.ReadParcels())
+        foreach (var parcels in parcelManager.GetParcels())
         {
             Console.WriteLine(parcels.ToString());
         }
