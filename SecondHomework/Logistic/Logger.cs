@@ -15,5 +15,10 @@
         Console.WriteLine("Enter please id of the parcel: ");
     }
 
+    public void AskToGetFilteredListOfParcelsByWeight()
+    {
+        Console.WriteLine("Would you like to get a list of parcels filtered by weight?");
+    }
+
     
 }
