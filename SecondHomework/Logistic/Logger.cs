@@ -1,24 +1,7 @@
 ﻿class Logger
 {
-    public void GetAmountOfParcels()
+    public void PrintMessage(string message)
     {
-        Console.WriteLine("How many parcels are you planning to send? ");
+    Console.WriteLine(message);
     }
-
-    public void AskIfNeedToRemove()
-    {
-        Console.WriteLine("Would you like to remove some parcels (yes/no)?");
-    }
-
-    public void CheckForIdToRemove()
-    {
-        Console.WriteLine("Enter please id of the parcel: ");
-    }
-
-    public void AskToGetFilteredListOfParcelsByWeight()
-    {
-        Console.WriteLine("Would you like to get a list of parcels filtered by weight?");
-    }
-
-    
 }

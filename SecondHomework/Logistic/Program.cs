@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using static ParcelManager;
 
 Logger logger = new Logger();
 FileManager fileManager = new FileManager();
 ParcelManager parcelManager = new ParcelManager(fileManager);
 string[] weightCategories = parcelManager.GetWeightCategories();
 
-logger.GetAmountOfParcels();
+logger.PrintMessage("How many parcels are you planning to send? ");
 string? AmountOfParcels = Console.ReadLine();
 
 
@@ -51,11 +52,11 @@ else
     Console.WriteLine("Invalid input. Please enter a valid number.");
 }
 
-logger.AskIfNeedToRemove();
+logger.PrintMessage("Would you like to remove some parcels (yes/no)?");
 
 if (CheckIfYes())
 {
-    logger.CheckForIdToRemove();
+    logger.PrintMessage("Enter please id of the parcel: ");
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
@@ -75,16 +76,17 @@ if (CheckIfYes())
     }
 }
 
-logger.AskToGetFilteredListOfParcelsByWeight();
+logger.PrintMessage("Would you like to get a list of parcels filtered by weight?");
 
 if (CheckIfYes())
 {
     Console.WriteLine("Here are parcels filtered by weight:");
-    List<List<Parcel>> sortedParcels = parcelManager.GetParcelsByWeight();
-    for (int i = 0; i < sortedParcels.Count; i++)
+    Dictionary<WeightCategory, List<Parcel>> sortedParcels = parcelManager.GetParcelsByWeight();
+
+    foreach (var category in sortedParcels)
     {
-        Console.WriteLine(weightCategories[i] + ":");
-        foreach (var parcel in sortedParcels[i])
+        Console.WriteLine(category.Key + ":");
+        foreach (var parcel in category.Value)
         {
             Console.WriteLine(parcel.ToString());
         }

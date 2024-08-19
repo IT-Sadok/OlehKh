@@ -8,6 +8,4 @@
         Success = success;
         Message = message;
     }
-
-    
 }

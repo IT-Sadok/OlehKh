@@ -3,14 +3,24 @@
 
     private List<Parcel> _parcels = new List<Parcel>();
     private FileManager _fileManager = new FileManager();
-    private readonly string[] _weightCategories =
+    public enum WeightCategory
     {
-        "Up to 1 kg",
-        "Up to 2 kg",
-        "Up to 5 kg",
-        "Up to 10 kg",
-        "Up to 20 kg",
-        "More than 20 kg"
+        UpTo1Kg,
+        UpTo2Kg,
+        UpTo5Kg,
+        UpTo10Kg,
+        UpTo20Kg,
+        MoreThan20Kg
+    };
+
+    private readonly WeightCategory[] _weightCategories =
+    {
+        WeightCategory.UpTo1Kg,
+        WeightCategory.UpTo2Kg,
+        WeightCategory.UpTo5Kg,
+        WeightCategory.UpTo10Kg,
+        WeightCategory.UpTo20Kg,
+        WeightCategory.MoreThan20Kg
     };
 
     public ParcelManager()
@@ -59,20 +69,27 @@
         return result;
     }
 
-    public List<List<Parcel>> GetParcelsByWeight()
+    public Dictionary<WeightCategory, List<Parcel>> GetParcelsByWeight()
     {
-        var upTo1Kg = _parcels.Where(parcel => parcel.Weight <= 1).ToList();
-        var upTo2Kg = _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList();
-        var upTo5Kg = _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList();
-        var upTo10Kg = _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList();
-        var upTo20Kg = _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList();
-        var moreThan20Kg = _parcels.Where(parcel => parcel.Weight > 20).ToList();
+        var parcelsByWeight = new Dictionary<WeightCategory, List<Parcel>>
+    {
+        { WeightCategory.UpTo1Kg, _parcels.Where(parcel => parcel.Weight <= 1).ToList() },
+        { WeightCategory.UpTo2Kg, _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
+        { WeightCategory.UpTo5Kg, _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
+        { WeightCategory.UpTo10Kg, _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
+        { WeightCategory.UpTo20Kg, _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
+        { WeightCategory.MoreThan20Kg, _parcels.Where(parcel => parcel.Weight > 20).ToList() }
+    };
 
-        return new List<List<Parcel>> { upTo1Kg, upTo2Kg, upTo5Kg, upTo10Kg, upTo20Kg, moreThan20Kg };
+        return parcelsByWeight;
     }
     public string[] GetWeightCategories()
     {
-        return _weightCategories;
+        return _weightCategories.Select(wc => wc.ToString()).ToArray();
     }
 
 }
+
+
+
+
