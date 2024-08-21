@@ -13,16 +13,6 @@
         MoreThan20Kg
     };
 
-    private readonly WeightCategory[] _weightCategories =
-    {
-        WeightCategory.UpTo1Kg,
-        WeightCategory.UpTo2Kg,
-        WeightCategory.UpTo5Kg,
-        WeightCategory.UpTo10Kg,
-        WeightCategory.UpTo20Kg,
-        WeightCategory.MoreThan20Kg
-    };
-
     public ParcelManager()
     {
         _parcels = new List<Parcel>();
@@ -85,7 +75,10 @@
     }
     public string[] GetWeightCategories()
     {
-        return _weightCategories.Select(wc => wc.ToString()).ToArray();
+        return Enum.GetValues(typeof(WeightCategory))
+               .Cast<WeightCategory>()
+               .Select(wc => wc.ToString())
+               .ToArray();
     }
 
 }

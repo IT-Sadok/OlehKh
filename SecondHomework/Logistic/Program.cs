@@ -11,7 +11,6 @@ string[] weightCategories = parcelManager.GetWeightCategories();
 logger.PrintMessage("How many parcels are you planning to send? ");
 string? AmountOfParcels = Console.ReadLine();
 
-
 if (int.TryParse(AmountOfParcels, out int amountOfParcels))
 {
     if (amountOfParcels > 0)
@@ -52,9 +51,9 @@ else
     Console.WriteLine("Invalid input. Please enter a valid number.");
 }
 
-logger.PrintMessage("Would you like to remove some parcels (yes/no)?");
+bool confirmationToRemove = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to remove some parcels (yes/no)?"));
 
-if (CheckIfYes())
+if (confirmationToRemove)
 {
     logger.PrintMessage("Enter please id of the parcel: ");
     string? ID = Console.ReadLine();
@@ -76,22 +75,20 @@ if (CheckIfYes())
     }
 }
 
-logger.PrintMessage("Would you like to get a list of parcels filtered by weight?");
+bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight?"));
 
-if (CheckIfYes())
+if (confirmationToFilter)
 {
-    Console.WriteLine("Here are parcels filtered by weight:");
+    logger.FilteredParcels();
     Dictionary<WeightCategory, List<Parcel>> sortedParcels = parcelManager.GetParcelsByWeight();
 
-    foreach (var category in sortedParcels)
-    {
-        Console.WriteLine(category.Key + ":");
-        foreach (var parcel in category.Value)
-        {
-            Console.WriteLine(parcel.ToString());
-        }
-    }
+    logger.PrintSortedParcels(sortedParcels);
 }
+else
+{
+    Console.WriteLine("");
+}
+
 
 
 
@@ -122,10 +119,4 @@ Parcel GetParcelDetailsFromInput()
     if (!float.TryParse(shippingCostInput, out float shippingCost)) throw new ArgumentException("Shipping cost of the parcel cannot be null or empty.");
 
     return new Parcel(Guid.NewGuid(), name, recipient, destination, dateOfParcelRegist, weight, shippingCost);
-}
-
-bool CheckIfYes()
-{
-    string? answer = Console.ReadLine();
-    return answer?.ToLower() == "yes";
 }
