@@ -75,10 +75,7 @@
     }
     public string[] GetWeightCategories()
     {
-        return Enum.GetValues(typeof(WeightCategory))
-               .Cast<WeightCategory>()
-               .Select(wc => wc.ToString())
-               .ToArray();
+        return Enum.GetNames(typeof(WeightCategory));
     }
 
 }
