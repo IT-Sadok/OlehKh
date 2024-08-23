@@ -1,23 +1,11 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
 
-public class Parcel
+public class Parcel: ParcelBase
 {
-    public Guid Id { get; private set; }
-    public string Name { get; private set; }
-    public string Recipient { get; private set; }
-    public string Destination { get; private set; }
-
-    public Parcel(Guid id, string name, string recipient, string destination)
+    public Parcel(Guid id, string name, string recipient, string destination, string dateOfParcelRegist, float weight,
+        float shippingCost) :
+        base(id, name, recipient, destination, dateOfParcelRegist, weight, shippingCost)
     {
-        Id = id;
-        Name = name;
-        Recipient = recipient;
-        Destination = destination;
-    }
 
-    public override string ToString()
-    {
-        return $"ID: {Id}, Name: {Name}, Recipient: {Recipient}, Destination: {Destination}";
     }
 }

@@ -3,6 +3,15 @@
 
     private List<Parcel> _parcels = new List<Parcel>();
     private FileManager _fileManager = new FileManager();
+    public enum WeightCategory
+    {
+        UpTo1Kg,
+        UpTo2Kg,
+        UpTo5Kg,
+        UpTo10Kg,
+        UpTo20Kg,
+        MoreThan20Kg
+    };
 
     public ParcelManager()
     {
@@ -27,7 +36,7 @@
     }
 
     public Result RemoveParcel(Guid id, List<Parcel> parcelsList)
-    {   
+    {
         Result result = new Result();
         try
         {
@@ -49,4 +58,28 @@
         }
         return result;
     }
+
+    public Dictionary<WeightCategory, List<Parcel>> GetParcelsByWeight()
+    {
+        var parcelsByWeight = new Dictionary<WeightCategory, List<Parcel>>
+    {
+        { WeightCategory.UpTo1Kg, _parcels.Where(parcel => parcel.Weight <= 1).ToList() },
+        { WeightCategory.UpTo2Kg, _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
+        { WeightCategory.UpTo5Kg, _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
+        { WeightCategory.UpTo10Kg, _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
+        { WeightCategory.UpTo20Kg, _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
+        { WeightCategory.MoreThan20Kg, _parcels.Where(parcel => parcel.Weight > 20).ToList() }
+    };
+
+        return parcelsByWeight;
+    }
+    public string[] GetWeightCategories()
+    {
+        return Enum.GetNames(typeof(WeightCategory));
+    }
+
 }
+
+
+
+

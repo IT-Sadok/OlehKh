@@ -1,19 +1,39 @@
-﻿class Logger
+﻿using static ParcelManager;
+
+class Logger
 {
-    public void GetAmountOfParcels()
+    public void PrintMessage(string message)
     {
-        Console.WriteLine("How many parcels are you planning to send? ");
+        Console.WriteLine(message);
     }
 
-    public void AskIfNeedToRemove()
+    public void FilteredParcels()
     {
-        Console.WriteLine("Would you like to remove some parcels (yes/no)?");
+        Console.WriteLine("Here are parcels filtered by weight:");
     }
 
-    public void CheckForIdToRemove()
+    public void PrintSortedParcels(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
     {
-        Console.WriteLine("Enter please id of the parcel: ");
+        foreach (var category in sortedParcels)
+        {
+            Console.WriteLine(category.Key + ":");
+            foreach (var parcel in category.Value)
+            {
+                Console.WriteLine(parcel.ToString());
+            }
+        }
     }
 
-    
+    public bool TryReadConfirmation(Action messageAction)
+    {
+        messageAction(); // Виклик делегата для виведення повідомлення
+        return CheckIfYes(); // Перевірка відповіді
+    }
+
+    // Метод для перевірки відповіді користувача
+    private bool CheckIfYes()
+    {
+        string? answer = Console.ReadLine();
+        return answer?.ToLower() == "yes";
+    }
 }

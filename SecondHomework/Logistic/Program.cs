@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using static ParcelManager;
 
 Logger logger = new Logger();
 FileManager fileManager = new FileManager();
 ParcelManager parcelManager = new ParcelManager(fileManager);
+string[] weightCategories = parcelManager.GetWeightCategories();
 
-logger.GetAmountOfParcels();
+logger.PrintMessage("How many parcels are you planning to send? ");
 string? AmountOfParcels = Console.ReadLine();
 
 if (int.TryParse(AmountOfParcels, out int amountOfParcels))
@@ -48,11 +51,11 @@ else
     Console.WriteLine("Invalid input. Please enter a valid number.");
 }
 
-logger.AskIfNeedToRemove();
-string? answer = Console.ReadLine();
-if (answer == "yes")
+bool confirmationToRemove = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to remove some parcels (yes/no)?"));
+
+if (confirmationToRemove)
 {
-    logger.CheckForIdToRemove();
+    logger.PrintMessage("Enter please id of the parcel: ");
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
@@ -71,10 +74,23 @@ if (answer == "yes")
         }
     }
 }
+
+bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight?"));
+
+if (confirmationToFilter)
+{
+    logger.FilteredParcels();
+    Dictionary<WeightCategory, List<Parcel>> sortedParcels = parcelManager.GetParcelsByWeight();
+
+    logger.PrintSortedParcels(sortedParcels);
+}
 else
 {
-    Console.WriteLine("Okay. Have a nice day!");
+    Console.WriteLine("");
 }
+
+
+
 
 Parcel GetParcelDetailsFromInput()
 {
@@ -90,5 +106,17 @@ Parcel GetParcelDetailsFromInput()
     string? destination = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(destination)) throw new ArgumentException("Destination cannot be null or empty.");
 
-    return new Parcel(Guid.NewGuid(), name, recipient, destination);
+    Console.Write("Please enter a date you want your parcel to be shipped. Date should in format: yyyy-MM-dd: ");
+    string? dateOfParcelRegist = Console.ReadLine();
+    if (string.IsNullOrWhiteSpace(dateOfParcelRegist)) throw new ArgumentException("Data cannot be null or empty.");
+
+    Console.Write("Please enter a weight of your parcel: ");
+    string? weightInput = Console.ReadLine();
+    if (!float.TryParse(weightInput, out float weight)) throw new ArgumentException("Weight of the parcel cannot be null or empty.");
+
+    Console.Write("How much it will be to ship your parcel? ");
+    string? shippingCostInput = Console.ReadLine();
+    if (!float.TryParse(shippingCostInput, out float shippingCost)) throw new ArgumentException("Shipping cost of the parcel cannot be null or empty.");
+
+    return new Parcel(Guid.NewGuid(), name, recipient, destination, dateOfParcelRegist, weight, shippingCost);
 }
