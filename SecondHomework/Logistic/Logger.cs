@@ -7,12 +7,12 @@ class Logger
         Console.WriteLine(message);
     }
 
-    public void FilteredParcels()
+    public void FilteredParcelsByWeight()
     {
         Console.WriteLine("Here are parcels filtered by weight:");
     }
 
-    public void PrintSortedParcels(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
+    public void PrintSortedParcelsByWeight(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
     {
         foreach (var category in sortedParcels)
         {

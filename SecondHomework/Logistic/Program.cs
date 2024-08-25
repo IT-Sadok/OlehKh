@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Globalization;
 using static ParcelManager;
 
@@ -7,6 +9,8 @@ Logger logger = new Logger();
 FileManager fileManager = new FileManager();
 ParcelManager parcelManager = new ParcelManager(fileManager);
 string[] weightCategories = parcelManager.GetWeightCategories();
+await parcelManager.InitializeAsync();
+
 
 logger.PrintMessage("How many parcels are you planning to send? ");
 string? AmountOfParcels = Console.ReadLine();
@@ -15,22 +19,30 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
 {
     if (amountOfParcels > 0)
     {
+        var tasks = new List<Task>();
         for (int i = 0; i < amountOfParcels; i++)
         {
-            try
+            Parcel newParcel = GetParcelDetailsFromInput();
+            tasks.Add(Task.Run(async () =>
             {
-                Parcel newParcel = GetParcelDetailsFromInput();
-                parcelManager.AddParcel(newParcel);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-            }
+                try
+                {
+                    await parcelManager.AddParcelAsync(newParcel);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An error occurred: {ex.Message}");
+                }
+            }));
+            
         }
+        await Task.WhenAll(tasks);
         Console.WriteLine("Parcel added successfully.");
+
         try
         {
-            foreach (var parcel in parcelManager.GetParcels())
+            var parcels = await parcelManager.GetParcelsAsync();
+            foreach (var parcel in parcels)
             {
                 Console.WriteLine(parcel.ToString());
             }
@@ -59,39 +71,35 @@ if (confirmationToRemove)
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
-        List<Parcel> parcel = parcelManager.GetParcels();
-        Result result = parcelManager.RemoveParcel(id, parcel);
+        List<Parcel> parcel = await parcelManager.GetParcelsAsync();
+        Result result = await parcelManager.RemoveParcelAsync(id);
         bool isRemoved = result.Success;
         Console.WriteLine(result.Message);
 
         if (isRemoved)
         {
-            fileManager.Save(parcel);
+            await fileManager.SaveAsync(parcel);
         }
-        foreach (var parcels in parcelManager.GetParcels())
+        List<Parcel> updatedParcels = await parcelManager.GetParcelsAsync();
+        foreach (var parcels in updatedParcels)
         {
             Console.WriteLine(parcels.ToString());
         }
     }
 }
 
-bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight?"));
+bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight and recepient?"));
 
 if (confirmationToFilter)
 {
-    logger.FilteredParcels();
-    Dictionary<WeightCategory, List<Parcel>> sortedParcels = parcelManager.GetParcelsByWeight();
-
-    logger.PrintSortedParcels(sortedParcels);
+    logger.FilteredParcelsByWeight();
+    Dictionary<WeightCategory, List<Parcel>> sortedParcelsByWeight = parcelManager.GetParcelsByWeight();
+    logger.PrintSortedParcelsByWeight(sortedParcelsByWeight);
 }
 else
 {
     Console.WriteLine("");
 }
-
-
-
-
 Parcel GetParcelDetailsFromInput()
 {
     Console.Write("What are you planning to send? ");

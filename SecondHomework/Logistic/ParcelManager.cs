@@ -13,38 +13,39 @@
         MoreThan20Kg
     };
 
-    public ParcelManager()
-    {
-        _parcels = new List<Parcel>();
-    }
-
     public ParcelManager(FileManager fileManager)
     {
         _fileManager = fileManager;
-        _parcels = fileManager.Read();
+        _parcels = new List<Parcel>();
     }
 
-    public void AddParcel(Parcel parcel)
+    public async Task InitializeAsync()
+    {
+        _parcels = await _fileManager.ReadAsync();
+    }
+
+    public async Task AddParcelAsync(Parcel parcel)
     {
         _parcels.Add(parcel);
-        _fileManager.Save(_parcels);
+        await _fileManager.SaveAsync(_parcels);
     }
 
-    public List<Parcel> GetParcels()
+    public async Task<List<Parcel>> GetParcelsAsync()
     {
+        _parcels = await _fileManager.ReadAsync();
         return _parcels;
     }
 
-    public Result RemoveParcel(Guid id, List<Parcel> parcelsList)
+    public async Task<Result> RemoveParcelAsync(Guid id) // List<Parcel> parcelsList
     {
         Result result = new Result();
         try
         {
-            Parcel? parcelToRemove = parcelsList.Find(p => p.Id == id);
+            Parcel? parcelToRemove = _parcels.Find(p => p.Id == id);
             if (parcelToRemove != null)
             {
-                parcelsList.Remove(parcelToRemove);
-                _fileManager.Save(parcelsList);
+                _parcels.Remove(parcelToRemove);
+                await _fileManager.SaveAsync(_parcels);
                 result.SetResult(true, $"Parcel with ID: {id} removed successfully.");
             }
             else
@@ -62,14 +63,14 @@
     public Dictionary<WeightCategory, List<Parcel>> GetParcelsByWeight()
     {
         var parcelsByWeight = new Dictionary<WeightCategory, List<Parcel>>
-    {
-        { WeightCategory.UpTo1Kg, _parcels.Where(parcel => parcel.Weight <= 1).ToList() },
-        { WeightCategory.UpTo2Kg, _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
-        { WeightCategory.UpTo5Kg, _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
-        { WeightCategory.UpTo10Kg, _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
-        { WeightCategory.UpTo20Kg, _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
-        { WeightCategory.MoreThan20Kg, _parcels.Where(parcel => parcel.Weight > 20).ToList() }
-    };
+        {
+            { WeightCategory.UpTo1Kg, _parcels.Where(parcel => parcel.Weight <= 1).ToList() },
+            { WeightCategory.UpTo2Kg, _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
+            { WeightCategory.UpTo5Kg, _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
+            { WeightCategory.UpTo10Kg, _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
+            { WeightCategory.UpTo20Kg, _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
+            { WeightCategory.MoreThan20Kg, _parcels.Where(parcel => parcel.Weight > 20).ToList() }
+        };
 
         return parcelsByWeight;
     }
@@ -77,7 +78,6 @@
     {
         return Enum.GetNames(typeof(WeightCategory));
     }
-
 }
 
 
