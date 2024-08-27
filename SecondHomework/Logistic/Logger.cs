@@ -24,6 +24,16 @@ class Logger
         }
     }
 
+    public async Task PrintDeliveredParcelsAsync(FileManager fileManager)
+    {
+        var deliveredParcels = await fileManager.ReadDeliveredAsync();
+        Console.WriteLine("Delivered Parcels:");
+        foreach (var parcel in deliveredParcels)
+        {
+            Console.WriteLine(parcel.ToString());
+        }
+    }
+
     public bool TryReadConfirmation(Action messageAction)
     {
         messageAction(); // Виклик делегата для виведення повідомлення

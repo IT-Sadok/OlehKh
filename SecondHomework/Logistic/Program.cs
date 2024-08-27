@@ -78,7 +78,7 @@ if (confirmationToRemove)
 
         if (isRemoved)
         {
-            await fileManager.SaveAsync(parcel);
+            await fileManager.SaveParcelsAsync(parcel);
         }
         List<Parcel> updatedParcels = await parcelManager.GetParcelsAsync();
         foreach (var parcels in updatedParcels)
@@ -100,6 +100,16 @@ else
 {
     Console.WriteLine("");
 }
+
+bool confirmationToDelivery = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to start delivery process?"));
+
+if (confirmationToDelivery)
+{
+    await parcelManager.FilterAndProcessParcelsForDeliveryAsync();
+    logger.PrintMessage("Parcel processing for delivery is complete.");
+    await logger.PrintDeliveredParcelsAsync(fileManager);
+}
+
 Parcel GetParcelDetailsFromInput()
 {
     Console.Write("What are you planning to send? ");

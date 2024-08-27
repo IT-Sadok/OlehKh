@@ -1,4 +1,9 @@
-﻿public class ParcelManager
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+public class ParcelManager
 {
 
     private List<Parcel> _parcels = new List<Parcel>();
@@ -27,7 +32,7 @@
     public async Task AddParcelAsync(Parcel parcel)
     {
         _parcels.Add(parcel);
-        await _fileManager.SaveAsync(_parcels);
+        await _fileManager.SaveParcelsAsync(_parcels);
     }
 
     public async Task<List<Parcel>> GetParcelsAsync()
@@ -36,7 +41,7 @@
         return _parcels;
     }
 
-    public async Task<Result> RemoveParcelAsync(Guid id) // List<Parcel> parcelsList
+    public async Task<Result> RemoveParcelAsync(Guid id)
     {
         Result result = new Result();
         try
@@ -45,7 +50,7 @@
             if (parcelToRemove != null)
             {
                 _parcels.Remove(parcelToRemove);
-                await _fileManager.SaveAsync(_parcels);
+                await _fileManager.SaveParcelsAsync(_parcels);
                 result.SetResult(true, $"Parcel with ID: {id} removed successfully.");
             }
             else
@@ -77,6 +82,11 @@
     public string[] GetWeightCategories()
     {
         return Enum.GetNames(typeof(WeightCategory));
+    }
+
+    public async Task FilterAndProcessParcelsForDeliveryAsync()
+    {
+        await _fileManager.FilteringParcelsForDeliveryAsync();
     }
 }
 
