@@ -31,36 +31,36 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
+                    logger.PrintMessage($"An error occurred: {ex.Message}");
                 }
             }));
             
         }
         await Task.WhenAll(tasks);
-        Console.WriteLine("Parcel added successfully.");
+        logger.PrintMessage("Parcel added successfully.");
 
         try
         {
             var parcels = await parcelManager.GetParcelsAsync();
             foreach (var parcel in parcels)
             {
-                Console.WriteLine(parcel.ToString());
+                logger.PrintMessage(parcel.ToString());
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"An error occurred while reading parcels: {ex.Message}");    
+            logger.PrintMessage($"An error occurred while reading parcels: {ex.Message}");    
         }
     }
     else
     {
-        Console.WriteLine("No parcels to add.");
+        logger.PrintMessage("No parcels to add.");
     }
 }
 
 else
 {
-    Console.WriteLine("Invalid input. Please enter a valid number.");
+    logger.PrintMessage("Invalid input. Please enter a valid number.");
 }
 
 bool confirmationToRemove = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to remove some parcels (yes/no)?"));
@@ -74,7 +74,7 @@ if (confirmationToRemove)
         List<Parcel> parcel = await parcelManager.GetParcelsAsync();
         Result result = await parcelManager.RemoveParcelAsync(id);
         bool isRemoved = result.Success;
-        Console.WriteLine(result.Message);
+        logger.PrintMessage(result.Message ?? "No message provided.");
 
         if (isRemoved)
         {
@@ -83,7 +83,7 @@ if (confirmationToRemove)
         List<Parcel> updatedParcels = await parcelManager.GetParcelsAsync();
         foreach (var parcels in updatedParcels)
         {
-            Console.WriteLine(parcels.ToString());
+            logger.PrintMessage(parcels.ToString());
         }
     }
 }
@@ -98,41 +98,62 @@ if (confirmationToFilter)
 }
 else
 {
-    Console.WriteLine("");
+    logger.PrintMessage("");
 }
 
 bool confirmationToDelivery = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to start delivery process?"));
 
 if (confirmationToDelivery)
 {
-    await parcelManager.FilterAndProcessParcelsForDeliveryAsync();
-    logger.PrintMessage("Parcel processing for delivery is complete.");
-    await logger.PrintDeliveredParcelsAsync(fileManager);
+    logger.PrintMessage("Enter the start date (yyyy-MM-dd): ");
+    string? startDateInput = Console.ReadLine();
+    logger.PrintMessage("Enter the end date (yyyy-MM-dd): ");
+    string? endDateInput = Console.ReadLine();
+    string dateFormat = "yyyy-MM-dd";
+
+    if (DateTime.TryParseExact(startDateInput, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate) &&
+        DateTime.TryParseExact(endDateInput, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime endDate))
+    {
+        await parcelManager.FilterAndProcessParcelsForDeliveryAsync(startDate, endDate);
+        logger.PrintMessage("Parcel processing for delivery is complete.");
+    }
+    else
+    {
+        logger.PrintMessage("Invalid date format. Please use yyyy-MM-dd.");
+    }
+    if (parcelManager != null)
+    {
+        await logger.PrintDeliveredParcelsAsync(parcelManager);
+    }
+    else
+    {
+        logger.PrintMessage("No parcels ot deliver.");
+    }
 }
 
 Parcel GetParcelDetailsFromInput()
 {
-    Console.Write("What are you planning to send? ");
+    logger.PrintMessage("What are you planning to send? ");
     string? name = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be null or empty.");
 
-    Console.Write("Who is the recipient? ");
+    logger.PrintMessage("Who is the recipient? ");
     string? recipient = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(recipient)) throw new ArgumentException("Recipient cannot be null or empty.");
 
-    Console.Write("Enter the destination, please: ");
+    logger.PrintMessage("Enter the destination, please: ");
     string? destination = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(destination)) throw new ArgumentException("Destination cannot be null or empty.");
 
-    Console.Write("Please enter a date you want your parcel to be shipped. Date should in format: yyyy-MM-dd: ");
+    logger.PrintMessage("Please enter a date you want your parcel to be shipped. Date should in format: yyyy-MM-dd: ");
     string? dateOfParcelRegist = Console.ReadLine();
     if (string.IsNullOrWhiteSpace(dateOfParcelRegist)) throw new ArgumentException("Data cannot be null or empty.");
 
-    Console.Write("Please enter a weight of your parcel: ");
+    logger.PrintMessage("Please enter a weight of your parcel: ");
     string? weightInput = Console.ReadLine();
     if (!float.TryParse(weightInput, out float weight)) throw new ArgumentException("Weight of the parcel cannot be null or empty.");
 
-    Console.Write("How much it will be to ship your parcel? ");
+    logger.PrintMessage("How much it will be to ship your parcel? ");
     string? shippingCostInput = Console.ReadLine();
     if (!float.TryParse(shippingCostInput, out float shippingCost)) throw new ArgumentException("Shipping cost of the parcel cannot be null or empty.");
 

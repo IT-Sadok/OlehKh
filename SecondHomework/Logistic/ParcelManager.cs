@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,6 +9,8 @@ public class ParcelManager
 
     private List<Parcel> _parcels = new List<Parcel>();
     private FileManager _fileManager = new FileManager();
+    private static readonly SemaphoreSlim _fileAccessSemaphore = new SemaphoreSlim(2, 2);
+
     public enum WeightCategory
     {
         UpTo1Kg,
@@ -84,12 +87,43 @@ public class ParcelManager
         return Enum.GetNames(typeof(WeightCategory));
     }
 
-    public async Task FilterAndProcessParcelsForDeliveryAsync()
+    public async Task FilterAndProcessParcelsForDeliveryAsync(DateTime startDate, DateTime endDate)
     {
-        await _fileManager.FilteringParcelsForDeliveryAsync();
+        await _fileAccessSemaphore.WaitAsync();
+        try
+        {
+            var unsentParcels = await _fileManager.ReadAsync();
+            string dateFormat = "yyyy-MM-dd";
+
+            var parcelsToDeliver = unsentParcels.Where(p =>
+            {
+                if (DateTime.TryParseExact(p.DateOfParcelRegist, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parcelDate))
+                {
+                    return parcelDate >= startDate && parcelDate <= endDate;
+                }
+                return false;
+            })
+            .OrderBy(p => DateTime.ParseExact(p.DateOfParcelRegist, dateFormat, CultureInfo.InvariantCulture))
+            .ToList();
+
+            if (parcelsToDeliver.Any())
+            {
+                var deliveredParcels = await _fileManager.ReadDeliveredAsync();
+                deliveredParcels.AddRange(parcelsToDeliver);
+                await _fileManager.SaveDeliveredAsync(deliveredParcels);
+
+                unsentParcels.RemoveAll(p => parcelsToDeliver.Contains(p));
+                await _fileManager.SaveParcelsAsync(unsentParcels);
+            }
+        }
+        finally
+        {
+            _fileAccessSemaphore.Release();
+        }
+    }
+
+    public async Task<List<Parcel>> GetDeliveredParcelsAsync()
+    {
+        return await _fileManager.ReadDeliveredAsync();
     }
 }
-
-
-
-

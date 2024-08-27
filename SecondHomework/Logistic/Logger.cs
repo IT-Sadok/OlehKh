@@ -24,9 +24,9 @@ class Logger
         }
     }
 
-    public async Task PrintDeliveredParcelsAsync(FileManager fileManager)
+    public async Task PrintDeliveredParcelsAsync(ParcelManager parcelManager)
     {
-        var deliveredParcels = await fileManager.ReadDeliveredAsync();
+        var deliveredParcels = await parcelManager.GetDeliveredParcelsAsync();
         Console.WriteLine("Delivered Parcels:");
         foreach (var parcel in deliveredParcels)
         {
