@@ -42,7 +42,7 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
 
         try
         {
-            var parcels = await parcelManager.GetParcelsAsync();
+            var parcels = parcelManager.GetParcels();
             foreach (var parcel in parcels)
             {
                 logger.PrintMessage(parcel.ToString());
@@ -72,7 +72,7 @@ if (confirmationToRemove)
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
-        List<Parcel> parcels = await parcelManager.GetParcelsAsync();
+        List<Parcel> parcels = parcelManager.GetParcels();
         Result result = await parcelManager.RemoveParcelAsync(id);
         bool isRemoved = result.Success;
         logger.PrintMessage(result.Message ?? "No message provided.");

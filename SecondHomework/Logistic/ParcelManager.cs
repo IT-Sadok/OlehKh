@@ -47,9 +47,8 @@ public class ParcelManager
         await _fileManager.SaveParcelsAsync(_unsentParcels);
     }
 
-    public async Task<List<Parcel>> GetParcelsAsync()
+    public List<Parcel> GetParcels()
     {
-        _unsentParcels = await _fileManager.ReadAsync();
         return _unsentParcels;
     }
 
