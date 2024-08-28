@@ -119,8 +119,7 @@ public class ParcelManager
                 _deliveredParcels.AddRange(parcelsToDeliver);
 
                 _unsentParcels.RemoveAll(p => parcelsToDeliver.Contains(p));
-                var fileManager = new FileManager();
-                await fileManager.SaveParcelsAsync(_unsentParcels);
+                await _fileManager.SaveParcelsAsync(_unsentParcels);
             }
         }
         finally

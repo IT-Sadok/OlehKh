@@ -79,7 +79,6 @@ if (confirmationToRemove)
 
         if (isRemoved)
         {
-            await fileManager.SaveParcelsAsync(parcels);
             foreach (var parcel in parcels)
             {
                 logger.PrintMessage(parcel.ToString());
