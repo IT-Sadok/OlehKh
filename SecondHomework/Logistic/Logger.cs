@@ -7,11 +7,6 @@ class Logger
         Console.WriteLine(message);
     }
 
-    public void FilteredParcelsByWeight()
-    {
-        Console.WriteLine("Here are parcels filtered by weight:");
-    }
-
     public void PrintSortedParcelsByWeight(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
     {
         foreach (var category in sortedParcels)
@@ -24,23 +19,21 @@ class Logger
         }
     }
 
-    public async Task PrintDeliveredParcelsAsync(ParcelManager parcelManager)
+    public void PrintDeliveredParcels(IEnumerable<Parcel> parcels)
     {
-        var deliveredParcels = await parcelManager.GetDeliveredParcelsAsync();
-        Console.WriteLine("Delivered Parcels:");
-        foreach (var parcel in deliveredParcels)
+        PrintMessage("Delivered Parcels:");
+        foreach (var parcel in parcels)
         {
-            Console.WriteLine(parcel.ToString());
+            PrintMessage(parcel.ToString());
         }
     }
 
     public bool TryReadConfirmation(Action messageAction)
     {
-        messageAction(); // Виклик делегата для виведення повідомлення
-        return CheckIfYes(); // Перевірка відповіді
+        messageAction();
+        return CheckIfYes();
     }
 
-    // Метод для перевірки відповіді користувача
     private bool CheckIfYes()
     {
         string? answer = Console.ReadLine();

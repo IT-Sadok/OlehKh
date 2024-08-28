@@ -1,14 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 public class ParcelManager
 {
+    private List<Parcel> _unsentParcels;
+    private List<Parcel> _deliveredParcels;
+    private readonly FileManager _fileManager;
 
-    private List<Parcel> _parcels = new List<Parcel>();
-    private FileManager _fileManager = new FileManager();
+    public ParcelManager(FileManager fileManager)
+    {
+        _fileManager = fileManager;
+        _unsentParcels = new List<Parcel>();
+        _deliveredParcels = new List<Parcel>();
+    }
+
+    public async Task InitializeAsync()
+    {
+        _unsentParcels = await _fileManager.ReadAsync();
+    }
+
     private static readonly SemaphoreSlim _fileAccessSemaphore = new SemaphoreSlim(2, 2);
 
     public enum WeightCategory
@@ -21,27 +36,21 @@ public class ParcelManager
         MoreThan20Kg
     };
 
-    public ParcelManager(FileManager fileManager)
+    public List<Parcel> GetDeliveredParcels()
     {
-        _fileManager = fileManager;
-        _parcels = new List<Parcel>();
-    }
-
-    public async Task InitializeAsync()
-    {
-        _parcels = await _fileManager.ReadAsync();
+        return _deliveredParcels;
     }
 
     public async Task AddParcelAsync(Parcel parcel)
     {
-        _parcels.Add(parcel);
-        await _fileManager.SaveParcelsAsync(_parcels);
+        _unsentParcels.Add(parcel);
+        await _fileManager.SaveParcelsAsync(_unsentParcels);
     }
 
     public async Task<List<Parcel>> GetParcelsAsync()
     {
-        _parcels = await _fileManager.ReadAsync();
-        return _parcels;
+        _unsentParcels = await _fileManager.ReadAsync();
+        return _unsentParcels;
     }
 
     public async Task<Result> RemoveParcelAsync(Guid id)
@@ -49,11 +58,11 @@ public class ParcelManager
         Result result = new Result();
         try
         {
-            Parcel? parcelToRemove = _parcels.Find(p => p.Id == id);
+            Parcel? parcelToRemove = _unsentParcels.Find(p => p.Id == id);
             if (parcelToRemove != null)
             {
-                _parcels.Remove(parcelToRemove);
-                await _fileManager.SaveParcelsAsync(_parcels);
+                _unsentParcels.Remove(parcelToRemove);
+                await _fileManager.SaveParcelsAsync(_unsentParcels);
                 result.SetResult(true, $"Parcel with ID: {id} removed successfully.");
             }
             else
@@ -68,23 +77,24 @@ public class ParcelManager
         return result;
     }
 
+    public string[] GetWeightCategories()
+    {
+        return Enum.GetNames(typeof(WeightCategory));
+    }
+    
     public Dictionary<WeightCategory, List<Parcel>> GetParcelsByWeight()
     {
         var parcelsByWeight = new Dictionary<WeightCategory, List<Parcel>>
         {
-            { WeightCategory.UpTo1Kg, _parcels.Where(parcel => parcel.Weight <= 1).ToList() },
-            { WeightCategory.UpTo2Kg, _parcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
-            { WeightCategory.UpTo5Kg, _parcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
-            { WeightCategory.UpTo10Kg, _parcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
-            { WeightCategory.UpTo20Kg, _parcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
-            { WeightCategory.MoreThan20Kg, _parcels.Where(parcel => parcel.Weight > 20).ToList() }
+            { WeightCategory.UpTo1Kg, _unsentParcels.Where(parcel => parcel.Weight <= 1).ToList() },
+            { WeightCategory.UpTo2Kg, _unsentParcels.Where(parcel => parcel.Weight > 1 && parcel.Weight <= 2).ToList() },
+            { WeightCategory.UpTo5Kg, _unsentParcels.Where(parcel => parcel.Weight > 2 && parcel.Weight <= 5).ToList() },
+            { WeightCategory.UpTo10Kg, _unsentParcels.Where(parcel => parcel.Weight > 5 && parcel.Weight <= 10).ToList() },
+            { WeightCategory.UpTo20Kg, _unsentParcels.Where(parcel => parcel.Weight > 10 && parcel.Weight <= 20).ToList() },
+            { WeightCategory.MoreThan20Kg, _unsentParcels.Where(parcel => parcel.Weight > 20).ToList() }
         };
 
         return parcelsByWeight;
-    }
-    public string[] GetWeightCategories()
-    {
-        return Enum.GetNames(typeof(WeightCategory));
     }
 
     public async Task FilterAndProcessParcelsForDeliveryAsync(DateTime startDate, DateTime endDate)
@@ -92,10 +102,9 @@ public class ParcelManager
         await _fileAccessSemaphore.WaitAsync();
         try
         {
-            var unsentParcels = await _fileManager.ReadAsync();
             string dateFormat = "yyyy-MM-dd";
 
-            var parcelsToDeliver = unsentParcels.Where(p =>
+            var parcelsToDeliver = _unsentParcels.Where(p =>
             {
                 if (DateTime.TryParseExact(p.DateOfParcelRegist, dateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parcelDate))
                 {
@@ -108,22 +117,16 @@ public class ParcelManager
 
             if (parcelsToDeliver.Any())
             {
-                var deliveredParcels = await _fileManager.ReadDeliveredAsync();
-                deliveredParcels.AddRange(parcelsToDeliver);
-                await _fileManager.SaveDeliveredAsync(deliveredParcels);
+                _deliveredParcels.AddRange(parcelsToDeliver);
 
-                unsentParcels.RemoveAll(p => parcelsToDeliver.Contains(p));
-                await _fileManager.SaveParcelsAsync(unsentParcels);
+                _unsentParcels.RemoveAll(p => parcelsToDeliver.Contains(p));
+                var fileManager = new FileManager();
+                await fileManager.SaveParcelsAsync(_unsentParcels);
             }
         }
         finally
         {
             _fileAccessSemaphore.Release();
         }
-    }
-
-    public async Task<List<Parcel>> GetDeliveredParcelsAsync()
-    {
-        return await _fileManager.ReadDeliveredAsync();
     }
 }

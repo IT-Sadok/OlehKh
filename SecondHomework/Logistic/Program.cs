@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using System.Globalization;
 using static ParcelManager;
 
-Logger logger = new Logger();
-FileManager fileManager = new FileManager();
-ParcelManager parcelManager = new ParcelManager(fileManager);
-string[] weightCategories = parcelManager.GetWeightCategories();
+var logger = new Logger();
+var fileManager = new FileManager();
+var parcelManager = new ParcelManager(fileManager);
 await parcelManager.InitializeAsync();
 
+string[] weightCategories = parcelManager.GetWeightCategories();
 
+// adding new parcels
 logger.PrintMessage("How many parcels are you planning to send? ");
 string? AmountOfParcels = Console.ReadLine();
 
@@ -57,12 +58,12 @@ if (int.TryParse(AmountOfParcels, out int amountOfParcels))
         logger.PrintMessage("No parcels to add.");
     }
 }
-
 else
 {
     logger.PrintMessage("Invalid input. Please enter a valid number.");
 }
 
+// deleting parcels
 bool confirmationToRemove = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to remove some parcels (yes/no)?"));
 
 if (confirmationToRemove)
@@ -71,28 +72,28 @@ if (confirmationToRemove)
     string? ID = Console.ReadLine();
     if (Guid.TryParse(ID, out Guid id))
     {
-        List<Parcel> parcel = await parcelManager.GetParcelsAsync();
+        List<Parcel> parcels = await parcelManager.GetParcelsAsync();
         Result result = await parcelManager.RemoveParcelAsync(id);
         bool isRemoved = result.Success;
         logger.PrintMessage(result.Message ?? "No message provided.");
 
         if (isRemoved)
         {
-            await fileManager.SaveParcelsAsync(parcel);
-        }
-        List<Parcel> updatedParcels = await parcelManager.GetParcelsAsync();
-        foreach (var parcels in updatedParcels)
-        {
-            logger.PrintMessage(parcels.ToString());
+            await fileManager.SaveParcelsAsync(parcels);
+            foreach (var parcel in parcels)
+            {
+                logger.PrintMessage(parcel.ToString());
+            }
         }
     }
 }
 
-bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight and recepient?"));
+// grouping parcels by weight
+bool confirmationToFilter = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to get a list of parcels filtered by weight?"));
 
 if (confirmationToFilter)
 {
-    logger.FilteredParcelsByWeight();
+    logger.PrintMessage("Here are parcels filtered by weight:");
     Dictionary<WeightCategory, List<Parcel>> sortedParcelsByWeight = parcelManager.GetParcelsByWeight();
     logger.PrintSortedParcelsByWeight(sortedParcelsByWeight);
 }
@@ -101,6 +102,7 @@ else
     logger.PrintMessage("");
 }
 
+// starting a delivery process
 bool confirmationToDelivery = logger.TryReadConfirmation(() => logger.PrintMessage("Would you like to start delivery process?"));
 
 if (confirmationToDelivery)
@@ -123,13 +125,14 @@ if (confirmationToDelivery)
     }
     if (parcelManager != null)
     {
-        await logger.PrintDeliveredParcelsAsync(parcelManager);
+        logger.PrintDeliveredParcels(parcelManager.GetDeliveredParcels());
     }
     else
     {
         logger.PrintMessage("No parcels ot deliver.");
     }
 }
+
 
 Parcel GetParcelDetailsFromInput()
 {
