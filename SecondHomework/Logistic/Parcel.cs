@@ -2,10 +2,9 @@
 
 public class Parcel: ParcelBase
 {
-    public Parcel(Guid id, string name, string recipient, string destination, string dateOfParcelRegist, float weight,
+    public Parcel(Guid id, string category, string recipient, string destination, string dateOfParcelRegist, float weight,
         float shippingCost) :
-        base(id, name, recipient, destination, dateOfParcelRegist, weight, shippingCost)
+        base(id, category, recipient, destination, dateOfParcelRegist, weight, shippingCost)
     {
-
     }
 }

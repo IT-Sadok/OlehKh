@@ -7,12 +7,7 @@ class Logger
         Console.WriteLine(message);
     }
 
-    public void FilteredParcels()
-    {
-        Console.WriteLine("Here are parcels filtered by weight:");
-    }
-
-    public void PrintSortedParcels(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
+    public void PrintSortedParcelsByWeight(Dictionary<WeightCategory, List<Parcel>> sortedParcels)
     {
         foreach (var category in sortedParcels)
         {
@@ -24,13 +19,21 @@ class Logger
         }
     }
 
-    public bool TryReadConfirmation(Action messageAction)
+    public void PrintDeliveredParcels(IEnumerable<Parcel> parcels)
     {
-        messageAction(); // Виклик делегата для виведення повідомлення
-        return CheckIfYes(); // Перевірка відповіді
+        PrintMessage("Delivered Parcels:");
+        foreach (var parcel in parcels)
+        {
+            PrintMessage(parcel.ToString());
+        }
     }
 
-    // Метод для перевірки відповіді користувача
+    public bool TryReadConfirmation(Action messageAction)
+    {
+        messageAction();
+        return CheckIfYes();
+    }
+
     private bool CheckIfYes()
     {
         string? answer = Console.ReadLine();
