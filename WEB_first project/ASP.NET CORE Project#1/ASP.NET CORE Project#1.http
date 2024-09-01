@@ -1,0 +1,7 @@
+@HostAddress = http://localhost:7056
+
+
+POST {{HostAddress}}/account
+Content-Type: application/json
+
+{}
