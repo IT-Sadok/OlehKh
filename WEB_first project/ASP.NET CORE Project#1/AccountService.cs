@@ -20,6 +20,7 @@ namespace ASP.NET_CORE_Project_1
                 Password = "12345",
                 CreatedAt = DateTime.UtcNow
             });
+
             await _context.SaveChangesAsync();
         }
     }

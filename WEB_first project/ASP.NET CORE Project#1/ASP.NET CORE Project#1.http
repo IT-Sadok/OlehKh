@@ -1,7 +1,7 @@
-@HostAddress = http://localhost:7056
+@HostAddress = http://localhost:5432
 
 
 POST {{HostAddress}}/account
-Content-Type: application/json
+Content-Type: ConnectionStrings
 
 {}

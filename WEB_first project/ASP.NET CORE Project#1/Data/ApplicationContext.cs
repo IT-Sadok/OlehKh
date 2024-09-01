@@ -7,7 +7,7 @@ namespace ASP.NET_CORE_Project_1.Data
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
-            Database.Migrate();
+            Database.EnsureCreated();
         }
 
         public DbSet<Account> Accounts => Set<Account>();
