@@ -1,7 +1,9 @@
-﻿namespace ASP.NET_CORE_Project_1
+﻿using ASP.NET_CORE_Project_1.Models;
+
+namespace ASP.NET_CORE_Project_1
 {
     public interface IAccountService
     {
-        Task CreateAccountAsync();
+        Task<bool> CreateAccountAsync(RegisterModel model);
     }
 }

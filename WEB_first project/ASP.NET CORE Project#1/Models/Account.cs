@@ -7,9 +7,8 @@ namespace ASP.NET_CORE_Project_1.Models
     public class Account
     {
         [Key]
-        public int id { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
+        public int Id { get; set; }
+        public string? UserId { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
