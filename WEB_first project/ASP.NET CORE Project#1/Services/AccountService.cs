@@ -23,11 +23,10 @@ namespace ASP.NET_CORE_Project_1.Services
                 Email = model.Email
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, model.Password ?? throw new ArgumentNullException(nameof(model.Password)));
 
             if (result.Succeeded)
             {
-                // Додати запис в таблицю Account
                 var account = new Account
                 {
                     UserId = user.Id,
