@@ -10,10 +10,12 @@ namespace ASP.NET_CORE_Project_1.Models
         [Key]
         public int Id { get; set; }
 
-        [ForeignKey("ApplicationUser")]
-        public Guid UserId { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public Guid UserId { get; set; } // Змінено на Guid
 
-        public ApplicationUser? ApplicationUser { get; set; }
+        [ForeignKey("UserId")]
+        public virtual ApplicationUser? User { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Додано CreatedAt
     }
+
 }

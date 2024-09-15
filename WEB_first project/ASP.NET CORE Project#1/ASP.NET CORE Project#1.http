@@ -1,7 +1,24 @@
-@HostAddress = http://localhost:5432
+@HostAddress = https://localhost:7056
 
 
-POST {{HostAddress}}/account
-Content-Type: ConnectionStrings
+POST {{HostAddress}}/api/account/register
+Content-Type: application/json
 
-{}
+{
+  "userName": "newuser",
+  "password": "NewPass@1234",
+  "email": "newuser@example.com"
+}
+
+
+POST {{HostAddress}}/api/account/login
+Content-Type: application/json
+
+{
+  "userName": "newuser",
+  "password": "NewPass@1234"
+}
+
+
+GET {{HostAddress}}/api/account/me
+Authorization: Bearer {{your_token}}
