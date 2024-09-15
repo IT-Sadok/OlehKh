@@ -12,19 +12,16 @@ namespace ASP.NET_CORE_Project_1.Extensions
         {
             services.Configure<IdentityOptions>(options =>
             {
-                // Параметри паролю
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 6;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
                 options.Password.RequireLowercase = true;
 
-                // Налаштування блокування користувача
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // Налаштування автентифікації
                 options.User.RequireUniqueEmail = true;
             });
 
@@ -33,7 +30,6 @@ namespace ASP.NET_CORE_Project_1.Extensions
 
         public static IServiceCollection AddAuthenticationAndAuthorization(this IServiceCollection services, IConfiguration configuration)
         {
-            // Отримуємо налаштування JWT з конфігураційного файлу (appsettings.json)
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings.GetValue<string>("Secret");
 
@@ -44,7 +40,6 @@ namespace ASP.NET_CORE_Project_1.Extensions
 
             var key = Encoding.ASCII.GetBytes(secretKey);
 
-            // Налаштування JWT Bearer автентифікації
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -52,24 +47,22 @@ namespace ASP.NET_CORE_Project_1.Extensions
             })
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false; // Вимкнути HTTPS для тестових цілей, увімкніть у production
-                options.SaveToken = true; // Зберігаємо токен
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true, // Перевірка видавця токена
-                    ValidateAudience = true, // Перевірка аудиторії токена
-                    ValidateLifetime = true, // Перевірка терміну дії токена
-                    ValidateIssuerSigningKey = true, // Перевірка підпису токена
-                    ValidIssuer = jwtSettings.GetValue<string>("Issuer"), // Видавець
-                    ValidAudience = jwtSettings.GetValue<string>("Audience"), // Аудиторія
-                    IssuerSigningKey = new SymmetricSecurityKey(key) // Ключ підпису
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
+                    ValidAudience = jwtSettings.GetValue<string>("Audience"),
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
             });
 
-            // Налаштування авторизації
             services.AddAuthorization(options =>
             {
-                // Вимагаємо автентифікації для всіх запитів за замовчуванням
                 options.DefaultPolicy = new AuthorizationPolicyBuilder()
                                         .RequireAuthenticatedUser()
                                         .Build();

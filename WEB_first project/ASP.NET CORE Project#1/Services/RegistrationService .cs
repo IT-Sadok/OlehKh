@@ -9,13 +9,13 @@ namespace ASP.NET_CORE_Project_1.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationContext _context;
-        private readonly IJwtTokenService _jwtTokenService; // Додано
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public RegistrationService(UserManager<ApplicationUser> userManager, ApplicationContext context, IJwtTokenService jwtTokenService) // Додано jwtTokenService
+        public RegistrationService(UserManager<ApplicationUser> userManager, ApplicationContext context, IJwtTokenService jwtTokenService)
         {
             _userManager = userManager;
             _context = context;
-            _jwtTokenService = jwtTokenService; // Ініціалізація
+            _jwtTokenService = jwtTokenService;
         }
 
         public async Task<RegistrationResult> RegisterUserAsync(SignUpModel model)
@@ -39,8 +39,7 @@ namespace ASP.NET_CORE_Project_1.Services
                 _context.Accounts.Add(account);
                 await _context.SaveChangesAsync();
 
-                // Генерація JWT токена
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user); // Виклик методу GenerateJwtTokenAsync
+                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
 
                 return new RegistrationResult
                 {
