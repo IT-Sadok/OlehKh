@@ -24,12 +24,12 @@ namespace ASP.NET_CORE_Project_1.Controllers
             IRegistrationService registrationService,
             ILoginService loginService,
             IJwtTokenService jwtTokenService,
-            IConfiguration configuration) // Додаємо IConfiguration в конструктор
+            IConfiguration configuration)
         {
             _registrationService = registrationService;
             _loginService = loginService;
             _jwtTokenService = jwtTokenService;
-            _configuration = configuration; // Ініціалізуємо _configuration
+            _configuration = configuration;
         }
 
         [AllowAnonymous]
@@ -61,27 +61,13 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
             return BadRequest(result.Errors);
         }
-        private string GenerateJwtToken(ApplicationUser user)
+
+        [Authorize]
+        [HttpGet("me")]
+        public IActionResult GetCurrentUser()
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.ASCII.GetBytes(jwtSettings.GetValue<string>("Secret"));
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                    }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = jwtSettings.GetValue<string>("Issuer"),
-                Audience = jwtSettings.GetValue<string>("Audience"),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var userName = User.Identity?.Name;
+            return Ok(new { UserName = userName });
         }
     }
 }

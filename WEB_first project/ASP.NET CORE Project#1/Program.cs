@@ -56,33 +56,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapPost("/api/account/register", async ([FromBody] SignUpModel model, IRegistrationService registrationService, IJwtTokenService jwtTokenService) =>
-{
-    var result = await registrationService.RegisterUserAsync(model);
-    if (result.IsSuccess)
-    {
-        var token = await jwtTokenService.GenerateJwtTokenAsync(result.User);
-        return Results.Ok(new { Token = token });
-    }
-    return Results.BadRequest(result.Errors);
-});
-
-app.MapPost("/api/account/login", async ([FromBody] SignInModel model, ILoginService loginService, IJwtTokenService jwtTokenService) =>
-{
-    var result = await loginService.LoginUserAsync(model);
-    if (result.IsSuccess)
-    {
-        var token = await jwtTokenService.GenerateJwtTokenAsync(result.User);
-        return Results.Ok(new { Token = token });
-    }
-    return Results.BadRequest(result.Errors);
-});
-
-app.MapGet("/api/account/me", [Authorize] async (HttpContext context) =>
-{
-    var userName = context.User.Identity?.Name;
-    return Results.Ok(new { UserName = userName });
-});
-
 
 app.Run();

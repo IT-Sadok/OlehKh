@@ -34,6 +34,8 @@ namespace ASP.NET_CORE_Project_1.Services
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(1),
+                NotBefore = DateTime.UtcNow,
+                IssuedAt = DateTime.UtcNow,
                 Issuer = jwtSettings.GetValue<string>("Issuer"),
                 Audience = jwtSettings.GetValue<string>("Audience"),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

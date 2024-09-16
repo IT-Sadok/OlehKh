@@ -49,23 +49,44 @@ namespace ASP.NET_CORE_Project_1.Extensions
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+
                     ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
                     ValidAudience = jwtSettings.GetValue<string>("Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    },
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine("Token validated for user: " + context.Principal.Identity.Name);
+                        return Task.CompletedTask;
+                    },
+                    OnChallenge = context =>
+                    {
+                        Console.WriteLine("Authentication challenge: " + context.ErrorDescription);
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                                        .RequireAuthenticatedUser()
-                                        .Build();
+                                            .RequireAuthenticatedUser()
+                                            .Build();
             });
 
             return services;
