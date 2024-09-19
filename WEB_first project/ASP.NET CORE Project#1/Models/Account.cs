@@ -10,9 +10,9 @@ namespace ASP.NET_CORE_Project_1.Models
         [Key]
         public int Id { get; set; }
 
+        [ForeignKey("User")]
         public Guid UserId { get; set; }
 
-        [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

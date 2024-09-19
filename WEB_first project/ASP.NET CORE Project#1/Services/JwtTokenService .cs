@@ -25,7 +25,7 @@ namespace ASP.NET_CORE_Project_1.Services
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -45,5 +45,4 @@ namespace ASP.NET_CORE_Project_1.Services
             return Task.FromResult(tokenHandler.WriteToken(token));
         }
     }
-
 }
