@@ -9,6 +9,7 @@ namespace ASP.NET_CORE_Project_1.Data
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
+            Database.Migrate();
         }
 
         public DbSet<Account> Accounts { get; set; }

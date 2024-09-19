@@ -25,7 +25,7 @@ namespace ASP.NET_CORE_Project_1.Services
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
@@ -41,8 +41,8 @@ namespace ASP.NET_CORE_Project_1.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Task.FromResult(tokenHandler.WriteToken(token));
+            var token = tokenHandler.CreateEncodedJwt(tokenDescriptor);
+            return Task.FromResult(token);
         }
     }
 }
