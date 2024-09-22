@@ -13,5 +13,6 @@ namespace ASP.NET_CORE_Project_1.Data
         }
 
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<Order> Orders { get; set; }
     }
 }
