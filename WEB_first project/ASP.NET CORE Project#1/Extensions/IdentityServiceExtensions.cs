@@ -65,7 +65,17 @@ namespace ASP.NET_CORE_Project_1.Extensions
                     },
                     OnTokenValidated = context =>
                     {
-                        Console.WriteLine("Token validated for user: " + context.Principal.Identity.Name);
+                        var userName = context.Principal?.Identity?.Name;
+
+                        if (userName != null)
+                        {
+                            Console.WriteLine("Token validated for user: " + userName);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Token validated, but user name is null or not provided.");
+                        }
+
                         return Task.CompletedTask;
                     },
                     OnChallenge = context =>

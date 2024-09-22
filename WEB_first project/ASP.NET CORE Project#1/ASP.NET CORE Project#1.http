@@ -1,24 +1,49 @@
 @HostAddress = https://localhost:7056
 
-
-POST {{HostAddress}}/api/account/register
+POST {{HostAddress}}/api/passengers
 Content-Type: application/json
 
 {
-  "userName": "newuser",
+  "userName": "newpassenger",
   "password": "NewPass@1234",
-  "email": "newuser@example.com"
+  "gender": "Male",
+  "age": 30,
+  "phoneNumber": "+1234567890"
 }
 
+POST {{HostAddress}}/api/drivers
+Content-Type: application/json
 
-POST {{HostAddress}}/api/account/login
+{
+  "userName": "newdriver",
+  "password": "NewPass@1234",
+  "email": "newdriver@example.com",
+  "gender": "Male",
+  "age": 35,
+  "experience": 10,
+  "carModel": "Tesla Model 3",
+  "phoneNumber": "+1234567890"
+}
+
+POST {{HostAddress}}/api/admins
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "userName": "newadmin",
+  "password": "NewAdminPass@1234",
+  "gender": "Female",
+  "age": 40,
+  "phoneNumber": "+1234567890"
+}
+
+POST {{HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
   "userName": "newuser",
   "password": "NewPass@1234"
 }
-
 
 GET {{HostAddress}}/api/account/me
 Authorization: Bearer {{your_token}}

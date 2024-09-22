@@ -10,6 +10,7 @@ using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using ASP.NET_CORE_Project_1.Utils;
 
 namespace ASP.NET_CORE_Project_1.Controllers
 {
@@ -38,24 +39,27 @@ namespace ASP.NET_CORE_Project_1.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("/api/users")]
-        public async Task<IActionResult> Register([FromBody] SignUpModel model)
+        [HttpPost("/api/passengers")]
+        public async Task<IActionResult> RegisterPassenger([FromBody] PassengerSignUpModel model)
         {
-            var user = new ApplicationUser
-            {
-                UserName = model.UserName,
-                Email = model.Email
-            };
+            var result = await _registrationService.RegisterPassengerAsync(model);
+            return RegistrationHelper.HandleRegistrationResult(result, this);
+        }
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+        [AllowAnonymous]
+        [HttpPost("/api/drivers")]
+        public async Task<IActionResult> RegisterDriver([FromBody] DriverSignUpModel model)
+        {
+            var result = await _registrationService.RegisterDriverAsync(model);
+            return RegistrationHelper.HandleRegistrationResult(result, this);
+        }
 
-            if (result.Succeeded)
-            {
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
-                return CreatedAtAction(nameof(GetCurrentUser), new { id = user.Id }, new { Token = token });
-            }
-
-            return BadRequest(result.Errors.Select(e => e.Description).ToList());
+        [Authorize(Roles = "Admin")]
+        [HttpPost("/api/admins")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] AdminSignUpModel model)
+        {
+            var result = await _registrationService.RegisterAdminAsync(model);
+            return RegistrationHelper.HandleRegistrationResult(result, this);
         }
 
         [AllowAnonymous]
@@ -64,7 +68,7 @@ namespace ASP.NET_CORE_Project_1.Controllers
         {
             var result = await _loginService.LoginUserAsync(model);
 
-            if (result.IsSuccess)
+            if (result.IsSuccess && result.User != null)
             {
                 var token = await _jwtTokenService.GenerateJwtTokenAsync(result.User);
                 return Ok(new { Token = token });
@@ -78,7 +82,8 @@ namespace ASP.NET_CORE_Project_1.Controllers
         public IActionResult GetCurrentUser()
         {
             var userName = User.Identity?.Name;
-            return Ok(new { UserName = userName });
+            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            return Ok(new { UserName = userName, Roles = roles });
         }
     }
 }
