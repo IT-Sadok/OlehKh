@@ -9,7 +9,8 @@ namespace ASP.NET_CORE_Project_1.Utils
         {
             if (result.IsSuccess && result.User != null)
             {
-                return controller.CreatedAtAction("GetCurrentUser", new { id = result.User.Id }, new { Token = result.Token });
+                return controller.CreatedAtAction("GetCurrentUser", "Account", new { }, new { Token = result.Token });
+
             }
             else
             {

@@ -20,7 +20,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             _userManager = userManager;
         }
 
-        // Тільки пасажир може створювати замовлення
         [Authorize(Roles = "Passenger")]
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderModel model)
@@ -32,7 +31,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             return Ok(order);
         }
 
-        // Тільки водій або адміністратор можуть переглядати всі замовлення
         [Authorize(Roles = "Admin,Driver")]
         [HttpGet]
         public async Task<IActionResult> GetOrders()
@@ -41,7 +39,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             return Ok(orders);
         }
 
-        // Призначити водія на замовлення (водій або адміністратор)
         [Authorize(Roles = "Admin,Driver")]
         [HttpPut("{orderId}/assign")]
         public async Task<IActionResult> AssignDriver(int orderId)
@@ -54,7 +51,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             return Ok();
         }
 
-        // Завершити замовлення (водій або адміністратор)
         [Authorize(Roles = "Admin,Driver")]
         [HttpPut("{orderId}/complete")]
         public async Task<IActionResult> CompleteOrder(int orderId)

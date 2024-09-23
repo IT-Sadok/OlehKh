@@ -18,48 +18,21 @@ namespace ASP.NET_CORE_Project_1.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly IRegistrationService _registrationService;
         private readonly ILoginService _loginService;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public AccountController(
-            IRegistrationService registrationService,
             ILoginService loginService,
             IJwtTokenService jwtTokenService,
             IConfiguration configuration,
             UserManager<ApplicationUser> userManager)
         {
-            _registrationService = registrationService;
             _loginService = loginService;
             _jwtTokenService = jwtTokenService;
             _configuration = configuration;
             _userManager = userManager;
-        }
-
-        [AllowAnonymous]
-        [HttpPost("/api/passengers")]
-        public async Task<IActionResult> RegisterPassenger([FromBody] PassengerSignUpModel model)
-        {
-            var result = await _registrationService.RegisterPassengerAsync(model);
-            return RegistrationHelper.HandleRegistrationResult(result, this);
-        }
-
-        [AllowAnonymous]
-        [HttpPost("/api/drivers")]
-        public async Task<IActionResult> RegisterDriver([FromBody] DriverSignUpModel model)
-        {
-            var result = await _registrationService.RegisterDriverAsync(model);
-            return RegistrationHelper.HandleRegistrationResult(result, this);
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpPost("/api/admins")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] AdminSignUpModel model)
-        {
-            var result = await _registrationService.RegisterAdminAsync(model);
-            return RegistrationHelper.HandleRegistrationResult(result, this);
         }
 
         [AllowAnonymous]
