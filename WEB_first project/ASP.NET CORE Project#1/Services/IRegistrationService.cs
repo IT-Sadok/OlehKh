@@ -4,6 +4,5 @@ using System.Threading.Tasks;
 
 public interface IRegistrationService
 {
-    // Єдиний метод реєстрації для всіх ролей
     Task<RegistrationResult> RegisterUserAsync(BaseSignUpModel model, string role);
 }

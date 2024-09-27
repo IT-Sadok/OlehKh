@@ -9,6 +9,8 @@ using ASP.NET_CORE_Project_1.Extensions;
 using ASP.NET_CORE_Project_1.DTO;
 using Microsoft.AspNetCore.Authorization;
 using ASP.NET_CORE_Project_1.Infrastructure;
+using AutoMapper;
+using ASP.NET_CORE_Project_1.Mappings;
 
 
 
@@ -23,6 +25,7 @@ builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
@@ -37,6 +40,13 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
 builder.Services.AddIdentityConfiguration();
 builder.Services.AddAuthenticationAndAuthorization(builder.Configuration);
 
+var mapperConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new MappingProfile());
+});
+
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 
@@ -66,6 +76,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 
 app.Run();

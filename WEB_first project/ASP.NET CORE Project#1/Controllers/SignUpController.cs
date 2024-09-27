@@ -4,6 +4,8 @@ using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Constants;
+using ASP.NET_CORE_Project_1.Mappings;
+using AutoMapper;
 
 
 namespace ASP.NET_CORE_Project_1.Controllers
@@ -13,10 +15,12 @@ namespace ASP.NET_CORE_Project_1.Controllers
     public class SignUpController : BaseController
     {
         private readonly IRegistrationService _registrationService;
+        private readonly IMapper _mapper;
 
-        public SignUpController(IRegistrationService registrationService)
+        public SignUpController(IRegistrationService registrationService, IMapper mapper)
         {
             _registrationService = registrationService;
+            _mapper = mapper;
         }
 
         [AllowAnonymous]
@@ -43,6 +47,9 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
         private async Task<IActionResult> RegisterWithRoleAsync(BaseSignUpModel model, string role)
         {
+            var account = _mapper.Map<Account>(model);
+            account.Role = role;
+
             var result = await _registrationService.RegisterUserAsync(model, role);
             return HandleRegistrationResult(result);
         }

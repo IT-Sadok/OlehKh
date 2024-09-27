@@ -1,8 +1,10 @@
-﻿using ASP.NET_CORE_Project_1.Data;
+﻿using ASP.NET_CORE_Project_1.Constants;
+using ASP.NET_CORE_Project_1.Data;
 using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_CORE_Project_1.Services
 {
@@ -19,72 +21,84 @@ namespace ASP.NET_CORE_Project_1.Services
             _jwtTokenService = jwtTokenService;
         }
 
-
-        public async Task<RegistrationResult> RegisterUserAsync(BaseSignUpModel model, string role)
+        private async Task<IdentityResult> CreateApplicationUser(BaseSignUpModel model)
         {
-            // Валідація
-            if (string.IsNullOrEmpty(model.UserName))
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName не може бути порожнім" } };
-            }
-
-            if (await _userManager.FindByNameAsync(model.UserName) != null)
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName вже використовується" } };
-            }
-
-            // Створюємо нового користувача
             var user = new ApplicationUser
             {
                 UserName = model.UserName,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber
             };
+            return await _userManager.CreateAsync(user, model.Password);
+        }
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+        public async Task<RegistrationResult> RegisterUserAsync(BaseSignUpModel model, string role)
+        {
+            var validRoles = new List<string> { UserRoles.Admin, UserRoles.Driver, UserRoles.Passenger };
+            if (!validRoles.Contains(role))
             {
-                // Додаємо користувача до потрібної ролі
-                await _userManager.AddToRoleAsync(user, role);
-
-                // Створюємо акаунт в залежності від ролі
-                var account = new Account
-                {
-                    UserId = user.Id,
-                    Role = role,
-                    CreatedAt = DateTime.UtcNow,
-                    Gender = model.Gender,
-                    Age = model.Age
-                };
-
-                // Якщо це водій, додаємо додаткові поля
-                if (role == "Driver" && model is DriverSignUpModel driverModel)
-                {
-                    account.DrivingExperienceYears = driverModel.Experience;
-                    account.CarModel = driverModel.CarModel;
-                }
-
-                _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
-
-                // Генерація JWT-токену
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
-
-                return new RegistrationResult
-                {
-                    IsSuccess = true,
-                    User = user,
-                    Token = token
-                };
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "Invalid role" } };
             }
 
-            // Якщо реєстрація не вдалася, повертаємо помилки
-            return new RegistrationResult
+            if (!ValidateModel(model, out var validationErrors))
             {
-                IsSuccess = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
+                return new RegistrationResult { IsSuccess = false, Errors = validationErrors };
+            }
+
+            if (await _userManager.FindByNameAsync(model.UserName) != null)
+            {
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName is already in use" } };
+            }
+
+            var result = await CreateApplicationUser(model);
+            if (!result.Succeeded)
+            {
+                return new RegistrationResult { IsSuccess = false, Errors = result.Errors.Select(e => e.Description).ToList() };
+            }
+
+            var user = await _userManager.FindByNameAsync(model.UserName);
+
+            await _userManager.AddToRoleAsync(user, role);
+
+            var account = new Account
+            {
+                UserId = user.Id,
+                Role = role,
+                CreatedAt = DateTime.UtcNow,
+                Gender = model.Gender,
+                Age = model.Age
             };
+
+            if (role == UserRoles.Driver && model is DriverSignUpModel driverModel)
+            {
+                account.DrivingExperienceYears = driverModel.Experience;
+                account.CarModel = driverModel.CarModel;
+            }
+
+            try
+            {
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "Error saving data to the database", ex.Message } };
+            }
+
+            var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
+
+            return new RegistrationResult { IsSuccess = true, User = user, Token = token };
         }
+
+        private bool ValidateModel(object model, out List<string> errors)
+        {
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(model);
+            var isValid = Validator.TryValidateObject(model, context, validationResults, true);
+
+            errors = validationResults.Select(vr => vr.ErrorMessage).ToList();
+            return isValid;
+        }
+
     }
 }
