@@ -10,7 +10,6 @@ using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using ASP.NET_CORE_Project_1.Utils;
 
 namespace ASP.NET_CORE_Project_1.Controllers
 {
