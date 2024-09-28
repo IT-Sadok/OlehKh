@@ -1,8 +1,10 @@
-﻿using ASP.NET_CORE_Project_1.Data;
+﻿using ASP.NET_CORE_Project_1.Constants;
+using ASP.NET_CORE_Project_1.Data;
 using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ASP.NET_CORE_Project_1.Services
 {
@@ -19,171 +21,84 @@ namespace ASP.NET_CORE_Project_1.Services
             _jwtTokenService = jwtTokenService;
         }
 
-
-        public async Task<RegistrationResult> RegisterPassengerAsync(PassengerSignUpModel model)
+        private async Task<IdentityResult> CreateApplicationUser(BaseSignUpModel model)
         {
-            if (string.IsNullOrEmpty(model.UserName))
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName не може бути порожнім" } };
-            }
-
-            if (await _userManager.FindByNameAsync(model.UserName) != null)
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName вже використовується" } };
-            }
-
             var user = new ApplicationUser
             {
                 UserName = model.UserName,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber
             };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, "Passenger");
-
-                var account = new Account
-                {
-                    UserId = user.Id,
-                    Role = "Passenger",
-                    CreatedAt = DateTime.UtcNow,
-                    Gender = model.Gender,
-                    Age = model.Age
-                };
-
-                _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
-
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
-
-                return new RegistrationResult
-                {
-                    IsSuccess = true,
-                    User = user,
-                    Token = token
-                };
-            }
-
-            return new RegistrationResult
-            {
-                IsSuccess = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
-            };
+            return await _userManager.CreateAsync(user, model.Password);
         }
 
-        public async Task<RegistrationResult> RegisterDriverAsync(DriverSignUpModel model)
+        public async Task<RegistrationResult> RegisterUserAsync(BaseSignUpModel model, string role)
         {
-            if (string.IsNullOrEmpty(model.UserName))
+            var validRoles = new List<string> { UserRoles.Admin, UserRoles.Driver, UserRoles.Passenger };
+            if (!validRoles.Contains(role))
             {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName не може бути порожнім" } };
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "Invalid role" } };
+            }
+
+            if (!ValidateModel(model, out var validationErrors))
+            {
+                return new RegistrationResult { IsSuccess = false, Errors = validationErrors };
             }
 
             if (await _userManager.FindByNameAsync(model.UserName) != null)
             {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName вже використовується" } };
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName is already in use" } };
             }
 
-            var user = new ApplicationUser
+            var result = await CreateApplicationUser(model);
+            if (!result.Succeeded)
             {
-                UserName = model.UserName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber
+                return new RegistrationResult { IsSuccess = false, Errors = result.Errors.Select(e => e.Description).ToList() };
+            }
+
+            var user = await _userManager.FindByNameAsync(model.UserName);
+
+            await _userManager.AddToRoleAsync(user, role);
+
+            var account = new Account
+            {
+                UserId = user.Id,
+                Role = role,
+                CreatedAt = DateTime.UtcNow,
+                Gender = model.Gender,
+                Age = model.Age
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+            if (role == UserRoles.Driver && model is DriverSignUpModel driverModel)
             {
-                await _userManager.AddToRoleAsync(user, "Driver");
+                account.DrivingExperienceYears = driverModel.Experience;
+                account.CarModel = driverModel.CarModel;
+            }
 
-                var account = new Account
-                {
-                    UserId = user.Id,
-                    Role = "Driver",
-                    DrivingExperienceYears = model.Experience,
-                    CreatedAt = DateTime.UtcNow,
-                    Gender = model.Gender,
-                    Age = model.Age,
-                    CarModel = model.CarModel
-                };
-
+            try
+            {
                 _context.Accounts.Add(account);
                 await _context.SaveChangesAsync();
-
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
-
-                return new RegistrationResult
-                {
-                    IsSuccess = true,
-                    User = user,
-                    Token = token
-                };
+            }
+            catch (DbUpdateException ex)
+            {
+                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "Error saving data to the database", ex.Message } };
             }
 
-            return new RegistrationResult
-            {
-                IsSuccess = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
-            };
+            var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
+
+            return new RegistrationResult { IsSuccess = true, User = user, Token = token };
         }
 
-        public async Task<RegistrationResult> RegisterAdminAsync(AdminSignUpModel model)
+        private bool ValidateModel(object model, out List<string> errors)
         {
-            if (string.IsNullOrEmpty(model.UserName))
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName не може бути порожнім" } };
-            }
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(model);                                             // inner method checking if all limits are met
+            var isValid = Validator.TryValidateObject(model, context, validationResults, true);
 
-            if (await _userManager.FindByNameAsync(model.UserName) != null)
-            {
-                return new RegistrationResult { IsSuccess = false, Errors = new List<string> { "UserName вже використовується" } };
-            }
-
-            var user = new ApplicationUser
-            {
-                UserName = model.UserName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber
-            };
-
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
-            {
-                await _userManager.AddToRoleAsync(user, "Admin");
-
-                var account = new Account
-                {
-                    UserId = user.Id,
-                    Role = "Admin",
-                    CreatedAt = DateTime.UtcNow,
-                    Gender = model.Gender,
-                    Age = model.Age
-                };
-
-                _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
-
-                var token = await _jwtTokenService.GenerateJwtTokenAsync(user);
-
-                return new RegistrationResult
-                {
-                    IsSuccess = true,
-                    User = user,
-                    Token = token
-                };
-            }
-
-            return new RegistrationResult
-            {
-                IsSuccess = false,
-                Errors = result.Errors.Select(e => e.Description).ToList()
-            };
+            errors = validationResults.Select(vr => vr.ErrorMessage).ToList();
+            return isValid;
         }
+
     }
-
-
 }
