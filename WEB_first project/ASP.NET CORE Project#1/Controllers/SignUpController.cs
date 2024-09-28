@@ -34,11 +34,11 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
             switch (role.ToLower())
             {
-                case "passenger":
+                case var r when r == UserRoles.Passenger.ToLower():
                     return await RegisterWithRoleAsync(model, UserRoles.Passenger);
-                case "driver":
+                case var r when r == UserRoles.Driver.ToLower():
                     return await RegisterWithRoleAsync(model, UserRoles.Driver);
-                case "admin":
+                case var r when r == UserRoles.Admin.ToLower():
                     return await RegisterWithRoleAsync(model, UserRoles.Admin);
                 default:
                     return BadRequest("Invalid role provided");
