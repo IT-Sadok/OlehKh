@@ -93,7 +93,7 @@ namespace ASP.NET_CORE_Project_1.Services
         private bool ValidateModel(object model, out List<string> errors)
         {
             var validationResults = new List<ValidationResult>();
-            var context = new ValidationContext(model);
+            var context = new ValidationContext(model);                                             // inner method checking if all limits are met
             var isValid = Validator.TryValidateObject(model, context, validationResults, true);
 
             errors = validationResults.Select(vr => vr.ErrorMessage).ToList();

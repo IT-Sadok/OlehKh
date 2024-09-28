@@ -47,9 +47,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
         private async Task<IActionResult> RegisterWithRoleAsync(BaseSignUpModel model, string role)
         {
-            var account = _mapper.Map<Account>(model);
-            account.Role = role;
-
             var result = await _registrationService.RegisterUserAsync(model, role);
             return HandleRegistrationResult(result);
         }
