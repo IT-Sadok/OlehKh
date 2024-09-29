@@ -53,22 +53,19 @@ namespace ASP.NET_CORE_Project_1.Controllers
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            // Отримуємо поточного користувача за допомогою UserManager
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return Unauthorized(); // Якщо користувача не знайдено
+                return Unauthorized();
             }
 
-            // Отримуємо ролі користувача напряму з бази даних
             var roles = await _userManager.GetRolesAsync(user);
 
-            // Повертаємо дані користувача разом з Name, UserName і ролями
             return Ok(new
             {
-                Name = user.Name, // Використовуємо поле Name
-                UserName = user.UserName, // UserName також додаємо
-                Roles = roles // Список ролей
+                Name = user.Name,
+                UserName = user.UserName,
+                Roles = roles
             });
         }
     }

@@ -31,13 +31,11 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
 
-            // Якщо користувач не є адміністратором, він може оновлювати тільки свої дані
             if (currentUser.Id != userId && !User.IsInRole("Admin"))
             {
-                return Forbid(); // Забороняємо змінювати чужі дані для звичайних користувачів
+                return Forbid();
             }
 
-            // Оновлюємо тільки ті поля, які були передані
             if (!string.IsNullOrEmpty(model.NewPhoneNumber))
             {
                 user.PhoneNumber = model.NewPhoneNumber;
@@ -61,7 +59,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 }
             }
 
-            // Оновлюємо користувача в системі
             var updateResult = await _userManager.UpdateAsync(user);
             if (updateResult.Succeeded)
             {
@@ -76,7 +73,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
-            // Отримуємо користувача, якого треба видалити
             var userToDelete = await _userManager.FindByIdAsync(userId.ToString());
             if (userToDelete == null)
             {
@@ -85,16 +81,13 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
             var currentUser = await _userManager.GetUserAsync(User);
 
-            // Перевіряємо, чи це адміністратор
             var isAdmin = User.IsInRole("Admin");
 
-            // Якщо не адміністратор, користувач може видаляти тільки себе
             if (currentUser.Id != userId && !isAdmin)
             {
                 return Forbid("You are not allowed to delete other users.");
             }
 
-            // Видаляємо користувача
             var result = await _userManager.DeleteAsync(userToDelete);
 
             if (!result.Succeeded)

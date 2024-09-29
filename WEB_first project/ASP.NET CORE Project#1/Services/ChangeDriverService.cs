@@ -19,30 +19,26 @@ namespace ASP.NET_CORE_Project_1.Services
 
             if (order == null)
             {
-                return false; // Якщо замовлення не знайдено
+                return false;
             }
 
-            // Перевірка статусу перед зняттям водія
             if (newDriverId == Guid.Empty)
             {
                 if (order.Status != "Assigned")
                 {
-                    return false; // Водія можна зняти лише в статусі "Assigned"
+                    return false;
                 }
 
-                // Знімаємо водія і повертаємо статус в "Pending"
                 order.DriverId = null;
                 order.Status = "Pending";
             }
             else
             {
-                // Призначити нового водія можна тільки в статусі "Pending"
                 if (order.Status != "Pending")
                 {
-                    return false; // Зміна водія можлива тільки, якщо замовлення в статусі "Pending"
+                    return false;
                 }
 
-                // Призначаємо нового водія і змінюємо статус на "Assigned"
                 order.DriverId = newDriverId;
                 order.Status = "Assigned";
             }

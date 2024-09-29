@@ -12,10 +12,8 @@ namespace ASP.NET_CORE_Project_1.Models
 
         public string? Name { get; set; }
 
-        // Навігаційна властивість для замовлень, де користувач є пасажиром
         public virtual ICollection<Order> PassengerOrders { get; set; }
 
-        // Навігаційна властивість для замовлень, де користувач є водієм
         public virtual ICollection<Order> DriverOrders { get; set; }
     }
 }

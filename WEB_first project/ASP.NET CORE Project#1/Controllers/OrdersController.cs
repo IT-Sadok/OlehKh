@@ -68,10 +68,8 @@ namespace ASP.NET_CORE_Project_1.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(User);
 
-            // Логування поточного користувача
             Console.WriteLine($"Current user: {currentUser?.UserName}, ID: {currentUser?.Id}");
 
-            // Отримуємо замовлення з бази даних
             var order = await _orderService.GetOrderByIdAsync(orderId);
             if (order == null)
             {
@@ -79,19 +77,15 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 return NotFound($"Order with ID {orderId} not found.");
             }
 
-            // Логування DriverId замовлення
             Console.WriteLine($"Order driver ID: {order.DriverId}");
 
-            // Перевірка статусу замовлення
             if (order.Status != "Assigned")
             {
                 return BadRequest("Driver can only be removed if the order status is 'Assigned'.");
             }
 
-            // Якщо поточний користувач — водій
             if (User.IsInRole("Driver"))
             {
-                // Перевіряємо, чи цей водій закріплений за цим замовленням за допомогою DriverId
                 if (order.DriverId != currentUser?.Id)
                 {
                     Console.WriteLine("You are not assigned to this order.");
@@ -103,7 +97,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 return Forbid();
             }
 
-            // Знімаємо водія з замовлення (якщо умови виконано)
             var removeResult = await _changeDriverService.ChangeDriverAsync(orderId, Guid.Empty);
             if (!removeResult)
             {

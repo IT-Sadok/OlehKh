@@ -43,14 +43,14 @@ namespace ASP.NET_CORE_Project_1.Services
         {
             var orders = await _context.Orders
                 .Include(o => o.Passenger)
-                .Include(o => o.Driver) // Завантажуємо навігаційну властивість Driver
+                .Include(o => o.Driver)
                 .ToListAsync();
 
             return orders.Select(order => new OrderDTO
             {
                 Id = order.Id,
                 PassengerId = order.PassengerId,
-                DriverId = order.DriverId, // Тут ти пропустив передачу DriverId
+                DriverId = order.DriverId,
                 PickupLocation = order.PickupLocation,
                 Destination = order.Destination,
                 Status = order.Status,
@@ -62,7 +62,7 @@ namespace ASP.NET_CORE_Project_1.Services
         {
             var order = await _context.Orders
                 .Include(o => o.Passenger)
-                .Include(o => o.Driver) // Завантажуємо навігаційну властивість Driver
+                .Include(o => o.Driver)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
             if (order == null)
@@ -74,7 +74,7 @@ namespace ASP.NET_CORE_Project_1.Services
             {
                 Id = order.Id,
                 PassengerId = order.PassengerId,
-                DriverId = order.DriverId, // Тут також потрібно передавати DriverId
+                DriverId = order.DriverId,
                 PickupLocation = order.PickupLocation,
                 Destination = order.Destination,
                 Status = order.Status,
@@ -87,7 +87,6 @@ namespace ASP.NET_CORE_Project_1.Services
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null || order.DriverId != null) return false;
 
-            // Призначаємо водія і змінюємо статус замовлення на "Assigned"
             order.DriverId = driverId;
             order.Status = "Assigned";
             order.AssignedAt = DateTime.UtcNow;
@@ -98,18 +97,15 @@ namespace ASP.NET_CORE_Project_1.Services
 
         public async Task<bool> CompleteOrderAsync(int orderId)
         {
-            // Отримуємо замовлення з бази даних і перевіряємо статус
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
             if (order == null || order.Status != "Assigned")
             {
-                return false; // Замовлення має бути в статусі "Assigned", щоб його можна було завершити
+                return false;
             }
 
-            // Змінюємо статус на "Completed"
             order.Status = "Completed";
             order.CompletedAt = DateTime.UtcNow;
 
-            // Зберігаємо зміни в базі даних
             await _context.SaveChangesAsync();
             return true;
         }

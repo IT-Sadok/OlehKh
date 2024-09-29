@@ -38,24 +38,19 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 return BadRequest("Role is required");
             }
 
-            // Перевіряємо, чи існують адміністратори в системі
             var anyAdminsExist = await _userManager.GetUsersInRoleAsync(UserRoles.Admin);
 
-            // Логіка реєстрації адміністратора
             if (role.ToLower() == UserRoles.Admin.ToLower())
             {
                 if (anyAdminsExist.Any())
                 {
-                    // Якщо адміністратор вже існує, лише інші адміністратори можуть реєструвати нових адміністраторів
                     if (!User.IsInRole(UserRoles.Admin))
                     {
                         return Forbid("Only existing admins can create new admins.");
                     }
                 }
-                // Якщо адміністраторів ще немає, дозволяємо реєстрацію всім (це перший адміністратор)
             }
 
-            // Логіка для інших ролей
             switch (role.ToLower())
             {
                 case var r when r == UserRoles.Passenger.ToLower():
@@ -69,34 +64,10 @@ namespace ASP.NET_CORE_Project_1.Controllers
             }
         }
 
-
         private async Task<IActionResult> RegisterWithRoleAsync(BaseSignUpModel model, string role)
         {
             var result = await _registrationService.RegisterUserAsync(model, role);
             return HandleRegistrationResult(result);
         }
-
-
-        //[AllowAnonymous]
-        //[HttpPost("register")]
-        //public async Task<IActionResult> RegisterUser([FromBody] BaseSignUpModel model, [FromQuery] string role)
-        //{
-        //    if (string.IsNullOrEmpty(role))
-        //    {
-        //        return BadRequest("Role is required");
-        //    }
-
-        //    switch (role.ToLower())
-        //    {
-        //        case var r when r == UserRoles.Passenger.ToLower():
-        //            return await RegisterWithRoleAsync(model, UserRoles.Passenger);
-        //        case var r when r == UserRoles.Driver.ToLower():
-        //            return await RegisterWithRoleAsync(model, UserRoles.Driver);
-        //        case var r when r == UserRoles.Admin.ToLower():
-        //            return await RegisterWithRoleAsync(model, UserRoles.Admin);
-        //        default:
-        //            return BadRequest("Invalid role provided");
-        //    }
-        //}
     }
 }
