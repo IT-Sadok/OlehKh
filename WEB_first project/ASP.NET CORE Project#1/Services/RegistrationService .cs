@@ -26,6 +26,7 @@ namespace ASP.NET_CORE_Project_1.Services
             var user = new ApplicationUser
             {
                 UserName = model.UserName,
+                Name = model.Name,
                 Email = model.Email,
                 PhoneNumber = model.PhoneNumber
             };

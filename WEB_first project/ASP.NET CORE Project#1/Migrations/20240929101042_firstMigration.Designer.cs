@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASP.NET_CORE_Project_1.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20240926201416_transformed1")]
-    partial class transformed1
+    [Migration("20240929101042_firstMigration")]
+    partial class firstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,6 +89,9 @@ namespace ASP.NET_CORE_Project_1.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -320,13 +323,14 @@ namespace ASP.NET_CORE_Project_1.Migrations
             modelBuilder.Entity("ASP.NET_CORE_Project_1.Models.Order", b =>
                 {
                     b.HasOne("ASP.NET_CORE_Project_1.Models.ApplicationUser", "Driver")
-                        .WithMany()
-                        .HasForeignKey("DriverId");
+                        .WithMany("DriverOrders")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("ASP.NET_CORE_Project_1.Models.ApplicationUser", "Passenger")
-                        .WithMany()
+                        .WithMany("PassengerOrders")
                         .HasForeignKey("PassengerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Driver");
@@ -383,6 +387,13 @@ namespace ASP.NET_CORE_Project_1.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ASP.NET_CORE_Project_1.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("DriverOrders");
+
+                    b.Navigation("PassengerOrders");
                 });
 #pragma warning restore 612, 618
         }

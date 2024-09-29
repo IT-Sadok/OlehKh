@@ -51,11 +51,42 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("me")]
-        public IActionResult GetCurrentUser()
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var userName = User.Identity?.Name;
-            var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-            return Ok(new { UserName = userName, Roles = roles });
+            // Отримуємо поточного користувача за допомогою UserManager
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized(); // Якщо користувача не знайдено
+            }
+
+            // Отримуємо ролі користувача напряму з бази даних
+            var roles = await _userManager.GetRolesAsync(user);
+
+            // Повертаємо дані користувача разом з Name, UserName і ролями
+            return Ok(new
+            {
+                Name = user.Name, // Використовуємо поле Name
+                UserName = user.UserName, // UserName також додаємо
+                Roles = roles // Список ролей
+            });
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+//public IActionResult GetCurrentUser()
+//{
+//    var userName = User.Identity?.Name;
+//    var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+//    return Ok(new { UserName = userName, Roles = roles });
+//}
+
