@@ -70,20 +70,3 @@ namespace ASP.NET_CORE_Project_1.Controllers
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-//public IActionResult GetCurrentUser()
-//{
-//    var userName = User.Identity?.Name;
-//    var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-//    return Ok(new { UserName = userName, Roles = roles });
-//}
-

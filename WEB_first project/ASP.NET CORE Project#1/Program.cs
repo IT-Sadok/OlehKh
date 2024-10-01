@@ -12,8 +12,6 @@ using ASP.NET_CORE_Project_1.Infrastructure;
 using AutoMapper;
 using ASP.NET_CORE_Project_1.Mappings;
 
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -26,13 +24,16 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IChangeDriverService, ChangeDriverService>();
+builder.Services.AddScoped<IRemoveDriverFromOrderService, RemoveDriverFromOrderService>();
+builder.Services.AddScoped<IUpdateUserService, UpdateUserService>();
+builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString(name:"Database"));
 });
-
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationContext>()
@@ -56,7 +57,6 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     await SeedRoles.Initialize(services);
 }
-
 
 if (app.Environment.IsDevelopment())
 {

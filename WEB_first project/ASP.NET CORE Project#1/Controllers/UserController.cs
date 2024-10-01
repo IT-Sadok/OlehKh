@@ -1,5 +1,6 @@
 ﻿using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Models;
+using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,58 +15,33 @@ namespace ASP.NET_CORE_Project_1.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUpdateUserService _updateUserService;
 
-        public UserController(UserManager<ApplicationUser> userManager)
+        public UserController(UserManager<ApplicationUser> userManager, IUpdateUserService updateUserService)
         {
             _userManager = userManager;
+            _updateUserService = updateUserService;
         }
 
-        [HttpPatch("{userId}/updateUser")]
+        [HttpPatch("{userId}")]
         public async Task<IActionResult> UpdateUser(Guid userId, [FromBody] UpdateUserModel model)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null)
-            {
-                return NotFound("User not found");
-            }
-
             var currentUser = await _userManager.GetUserAsync(User);
-
-            if (currentUser.Id != userId && !User.IsInRole("Admin"))
+            if (currentUser == null)
             {
-                return Forbid();
+                return Unauthorized("Current user not found.");
             }
 
-            if (!string.IsNullOrEmpty(model.NewPhoneNumber))
+            var isAdmin = User.IsInRole("Admin");
+
+            var result = await _updateUserService.UpdateUserAsync(userId, model, currentUser.Id.ToString(), isAdmin);
+
+            if (!result.IsSuccess)
             {
-                user.PhoneNumber = model.NewPhoneNumber;
+                return BadRequest(result.ErrorMessage);
             }
 
-            if (!string.IsNullOrEmpty(model.NewEmail))
-            {
-                var setEmailResult = await _userManager.SetEmailAsync(user, model.NewEmail);
-                if (!setEmailResult.Succeeded)
-                {
-                    return BadRequest("Failed to update email.");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(model.NewUserName))
-            {
-                var setUserNameResult = await _userManager.SetUserNameAsync(user, model.NewUserName);
-                if (!setUserNameResult.Succeeded)
-                {
-                    return BadRequest("Failed to update username.");
-                }
-            }
-
-            var updateResult = await _userManager.UpdateAsync(user);
-            if (updateResult.Succeeded)
-            {
-                return Ok("User information updated successfully.");
-            }
-
-            return BadRequest("Failed to update user information.");
+            return Ok("User information updated successfully.");
         }
 
 

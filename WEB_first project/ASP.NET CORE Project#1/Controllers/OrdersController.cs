@@ -14,12 +14,15 @@ namespace ASP.NET_CORE_Project_1.Controllers
         private readonly IOrderService _orderService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IChangeDriverService _changeDriverService;
+        private readonly IRemoveDriverFromOrderService _removeDriverFromOrderService;
 
-        public OrdersController(IOrderService orderService, UserManager<ApplicationUser> userManager, IChangeDriverService changeDriverService)
+        public OrdersController(IOrderService orderService, UserManager<ApplicationUser> userManager,
+            IChangeDriverService changeDriverService, IRemoveDriverFromOrderService removeDriverFromOrderService)
         {
             _orderService = orderService;
             _userManager = userManager;
             _changeDriverService = changeDriverService;
+            _removeDriverFromOrderService = removeDriverFromOrderService;
         }
 
         [Authorize(Roles = "Passenger")]
@@ -63,50 +66,22 @@ namespace ASP.NET_CORE_Project_1.Controllers
         }
 
         [Authorize(Roles = "Driver,Admin")]
-        [HttpPut("{orderId}/removeDriver")]
+        [HttpDelete("{orderId}/Driver")]
         public async Task<IActionResult> RemoveDriver(int orderId)
         {
             var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Unauthorized();
 
-            Console.WriteLine($"Current user: {currentUser?.UserName}, ID: {currentUser?.Id}");
+            var userId = currentUser.Id.ToString();
 
-            var order = await _orderService.GetOrderByIdAsync(orderId);
-            if (order == null)
+            var result = await _removeDriverFromOrderService.RemoveDriverAsync(orderId, userId, User.IsInRole("Driver") ? "Driver" : "Admin");
+
+            if (!result.IsSuccess)
             {
-                Console.WriteLine($"Order with ID {orderId} not found.");
-                return NotFound($"Order with ID {orderId} not found.");
-            }
-
-            Console.WriteLine($"Order driver ID: {order.DriverId}");
-
-            if (order.Status != "Assigned")
-            {
-                return BadRequest("Driver can only be removed if the order status is 'Assigned'.");
-            }
-
-            if (User.IsInRole("Driver"))
-            {
-                if (order.DriverId != currentUser?.Id)
-                {
-                    Console.WriteLine("You are not assigned to this order.");
-                    return Unauthorized("You are not assigned to this order.");
-                }
-            }
-            else if (!User.IsInRole("Admin"))
-            {
-                return Forbid();
-            }
-
-            var removeResult = await _changeDriverService.ChangeDriverAsync(orderId, Guid.Empty);
-            if (!removeResult)
-            {
-                return BadRequest("Failed to remove driver from the order.");
+                return BadRequest(result.ErrorMessage);
             }
 
             return Ok("Driver removed from the order successfully.");
         }
-
-
-
     }
 }
