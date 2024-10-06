@@ -15,5 +15,7 @@ namespace ASP.NET_CORE_Project_1.Models
         public virtual ICollection<Order> PassengerOrders { get; set; }
 
         public virtual ICollection<Order> DriverOrders { get; set; }
+
+        public virtual Account? Account { get; set; }
     }
 }

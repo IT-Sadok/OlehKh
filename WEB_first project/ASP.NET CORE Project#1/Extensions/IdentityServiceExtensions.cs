@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace ASP.NET_CORE_Project_1.Extensions
 {
@@ -33,6 +34,12 @@ namespace ASP.NET_CORE_Project_1.Extensions
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings.GetValue<string>("Secret");
 
+            var issuer = jwtSettings.GetValue<string>("Issuer");
+            var audience = jwtSettings.GetValue<string>("Audience");
+
+            Console.WriteLine($"Issuer: {issuer}");
+            Console.WriteLine($"Audience: {audience}");
+
             if (string.IsNullOrEmpty(secretKey))
             {
                 throw new ArgumentException("JWT Secret key is not configured.");
@@ -40,51 +47,60 @@ namespace ASP.NET_CORE_Project_1.Extensions
 
             var key = Encoding.ASCII.GetBytes(secretKey);
 
-            services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
+                    options.IncludeErrorDetails = true;
 
-                    ValidIssuer = jwtSettings.GetValue<string>("Issuer"),
-                    ValidAudience = jwtSettings.GetValue<string>("Audience"),
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnAuthenticationFailed = context =>
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        Console.WriteLine("Authentication failed: " + context.Exception.Message);
-                        return Task.CompletedTask;
-                    },
-                    OnTokenValidated = context =>
-                    {
-                        var userName = context.Principal?.Identity?.Name;
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        
+                        ValidIssuer = issuer,
+                        ValidAudience = audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                    };
 
-                        if (userName != null)
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
                         {
-                            Console.WriteLine("Token validated for user: " + userName);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Token validated, but user name is null or not provided.");
-                        }
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("JwtAuth");
 
-                        return Task.CompletedTask;
-                    },
-                    OnChallenge = context =>
-                    {
-                        Console.WriteLine("Authentication challenge: " + context.ErrorDescription);
-                        return Task.CompletedTask;
-                    }
-                };
-            });
+                            logger.LogError("Authentication failed: {Message}", context.Exception.Message);
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("JwtAuth");
+
+                            var userName = context.Principal?.Identity?.Name;
+                            if (userName != null)
+                            {
+                                logger.LogInformation("Token validated for user: {UserName}", userName);
+                            }
+                            else
+                            {
+                                logger.LogWarning("Token validated, but user name is null or not provided.");
+                            }
+
+                            return Task.CompletedTask;
+                        },
+                        OnChallenge = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("JwtAuth");
+
+                            logger.LogWarning("Authentication challenge triggered: {ErrorDescription}", context.ErrorDescription);
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
 
             services.AddAuthorization(options =>
             {

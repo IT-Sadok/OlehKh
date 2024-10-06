@@ -1,9 +1,10 @@
 ﻿using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Models;
-using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
+using ASP.NET_CORE_Project_1.Commands.Users;
 using System;
 using System.Threading.Tasks;
 
@@ -15,12 +16,14 @@ namespace ASP.NET_CORE_Project_1.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUpdateUserService _updateUserService;
+        private readonly IMediator _mediator;
 
-        public UserController(UserManager<ApplicationUser> userManager, IUpdateUserService updateUserService)
+
+
+        public UserController(UserManager<ApplicationUser> userManager, IMediator mediator)
         {
             _userManager = userManager;
-            _updateUserService = updateUserService;
+            _mediator = mediator;
         }
 
         [HttpPatch("{userId}")]
@@ -34,7 +37,7 @@ namespace ASP.NET_CORE_Project_1.Controllers
 
             var isAdmin = User.IsInRole("Admin");
 
-            var result = await _updateUserService.UpdateUserAsync(userId, model, currentUser.Id.ToString(), isAdmin);
+            var result = await _mediator.Send(new UpdateUserCommand(userId, model, currentUser.Id.ToString(), isAdmin));
 
             if (!result.IsSuccess)
             {
@@ -44,8 +47,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             return Ok("User information updated successfully.");
         }
 
-
-        [Authorize]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
@@ -56,7 +57,6 @@ namespace ASP.NET_CORE_Project_1.Controllers
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
-
             var isAdmin = User.IsInRole("Admin");
 
             if (currentUser.Id != userId && !isAdmin)
@@ -64,11 +64,11 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 return Forbid("You are not allowed to delete other users.");
             }
 
-            var result = await _userManager.DeleteAsync(userToDelete);
+            var result = await _mediator.Send(new DeleteUserCommand(userToDelete.Id, currentUser.Id.ToString(), isAdmin));
 
-            if (!result.Succeeded)
+            if (!result.IsSuccess)
             {
-                return BadRequest("Failed to delete user.");
+                return BadRequest(result.ErrorMessage);
             }
 
             return Ok($"User {userToDelete.UserName} deleted successfully.");

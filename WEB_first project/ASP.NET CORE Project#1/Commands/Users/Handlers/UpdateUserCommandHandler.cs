@@ -1,50 +1,49 @@
-﻿using ASP.NET_CORE_Project_1.DTO;
+﻿using MediatR;
+using ASP.NET_CORE_Project_1.DTO;
 using ASP.NET_CORE_Project_1.Models;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Threading.Tasks;
 
-namespace ASP.NET_CORE_Project_1.Services
+namespace ASP.NET_CORE_Project_1.Commands.Users.Handlers
 {
-    public class UpdateUserService : IUpdateUserService
+    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, (bool IsSuccess, string ErrorMessage)>
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public UpdateUserService(UserManager<ApplicationUser> userManager)
+        public UpdateUserCommandHandler(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
         }
 
-        public async Task<(bool IsSuccess, string ErrorMessage)> UpdateUserAsync(Guid userId, UpdateUserModel model, string currentUserId, bool isAdmin)
+        public async Task<(bool IsSuccess, string ErrorMessage)> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
             if (user == null)
             {
                 return (false, "User not found");
             }
 
-            if (currentUserId != user.Id.ToString() && !isAdmin)
+            if (request.CurrentUserId != user.Id.ToString() && !request.IsAdmin)
             {
                 return (false, "You are not authorized to update this user.");
             }
 
-            if (!string.IsNullOrEmpty(model.NewPhoneNumber))
+            if (!string.IsNullOrEmpty(request.Model.NewPhoneNumber))
             {
-                user.PhoneNumber = model.NewPhoneNumber;
+                user.PhoneNumber = request.Model.NewPhoneNumber;
             }
 
-            if (!string.IsNullOrEmpty(model.NewEmail))
+            if (!string.IsNullOrEmpty(request.Model.NewEmail))
             {
-                var setEmailResult = await _userManager.SetEmailAsync(user, model.NewEmail);
+                var setEmailResult = await _userManager.SetEmailAsync(user, request.Model.NewEmail);
                 if (!setEmailResult.Succeeded)
                 {
                     return (false, "Failed to update email.");
                 }
             }
 
-            if (!string.IsNullOrEmpty(model.NewUserName))
+            if (!string.IsNullOrEmpty(request.Model.NewUserName))
             {
-                var setUserNameResult = await _userManager.SetUserNameAsync(user, model.NewUserName);
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, request.Model.NewUserName);
                 if (!setUserNameResult.Succeeded)
                 {
                     return (false, "Failed to update username.");
@@ -59,6 +58,5 @@ namespace ASP.NET_CORE_Project_1.Services
 
             return (true, null);
         }
-
     }
 }

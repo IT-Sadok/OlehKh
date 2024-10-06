@@ -1,33 +1,33 @@
 using Microsoft.EntityFrameworkCore;
 using ASP.NET_CORE_Project_1.Data;
 using ASP.NET_CORE_Project_1.Models;
-using ASP.NET_CORE_Project_1;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
-using ASP.NET_CORE_Project_1.Services;
 using ASP.NET_CORE_Project_1.Extensions;
-using ASP.NET_CORE_Project_1.DTO;
-using Microsoft.AspNetCore.Authorization;
 using ASP.NET_CORE_Project_1.Infrastructure;
 using AutoMapper;
 using ASP.NET_CORE_Project_1.Mappings;
+using MediatR;
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using ASP.NET_CORE_Project_1.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerDocumentation();
 
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
-builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IChangeDriverService, ChangeDriverService>();
-builder.Services.AddScoped<IRemoveDriverFromOrderService, RemoveDriverFromOrderService>();
-builder.Services.AddScoped<IUpdateUserService, UpdateUserService>();
-builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
@@ -40,7 +40,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddIdentityConfiguration();
+
 builder.Services.AddAuthenticationAndAuthorization(builder.Configuration);
+
+builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
 var mapperConfig = new MapperConfiguration(mc =>
 {
@@ -52,10 +55,20 @@ builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedRoles.Initialize(services);
+    try
+    {
+        await SeedRoles.Initialize(services);
+        logger.LogInformation("Roles initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error during roles initialization");
+    }
 }
 
 if (app.Environment.IsDevelopment())

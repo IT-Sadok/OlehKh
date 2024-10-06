@@ -29,7 +29,7 @@ namespace ASP.NET_CORE_Project_1.Extensions
                                 Type = ReferenceType.SecurityScheme,
                                 Id = "Bearer"
                             },
-                            Scheme = "oauth2",
+                            Scheme = "Bearer",
                             Name = "Bearer",
                             In = ParameterLocation.Header,
                         },
@@ -37,7 +37,6 @@ namespace ASP.NET_CORE_Project_1.Extensions
                     }
                 });
             });
-
             return services;
         }
     }

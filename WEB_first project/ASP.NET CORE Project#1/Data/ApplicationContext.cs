@@ -30,6 +30,12 @@ namespace ASP.NET_CORE_Project_1.Data
                 .WithOne(o => o.Driver)
                 .HasForeignKey(o => o.DriverId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<Account>()
+                .HasOne(a => a.User)
+                .WithOne(u => u.Account)
+                .HasForeignKey<Account>(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

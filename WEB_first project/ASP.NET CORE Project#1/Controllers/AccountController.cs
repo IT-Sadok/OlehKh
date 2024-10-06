@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ASP.NET_CORE_Project_1.Models;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using ASP.NET_CORE_Project_1.DTO;
-using ASP.NET_CORE_Project_1.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
+using MediatR;
+using System.Security.Claims;
+using ASP.NET_CORE_Project_1.Commands.Auth;
+using ASP.NET_CORE_Project_1.Queries.Users;
+using System.IdentityModel.Tokens.Jwt;
+using ASP.NET_CORE_Project_1.Services;
 
 namespace ASP.NET_CORE_Project_1.Controllers
 {
@@ -17,49 +15,47 @@ namespace ASP.NET_CORE_Project_1.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly ILoginService _loginService;
+        private readonly IMediator _mediator;
         private readonly IJwtTokenService _jwtTokenService;
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountController(
-            ILoginService loginService,
-            IJwtTokenService jwtTokenService,
-            IConfiguration configuration,
-            UserManager<ApplicationUser> userManager)
+        public AccountController(IMediator mediator, IJwtTokenService jwtTokenService)
         {
-            _loginService = loginService;
+            _mediator = mediator;
             _jwtTokenService = jwtTokenService;
-            _configuration = configuration;
-            _userManager = userManager;
         }
 
         [AllowAnonymous]
-        [HttpPost("/api/auth/login")]
+        [HttpPost("/api/login")]
         public async Task<IActionResult> Login([FromBody] SignInModel model)
         {
-            var result = await _loginService.LoginUserAsync(model);
+            var result = await _mediator.Send(new LoginCommand(model.UserName, model.Password));
 
             if (result.IsSuccess && result.User != null)
             {
                 var token = await _jwtTokenService.GenerateJwtTokenAsync(result.User);
-                return Ok(new { Token = token });
+
+                return Ok(new TokenReturnDto
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                });
             }
 
             return BadRequest(result.Errors);
         }
 
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("me")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _mediator.Send(new GetCurrentUserQuery(User));
+
             if (user == null)
             {
                 return Unauthorized();
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _mediator.Send(new GetUserRolesQuery(user));
 
             return Ok(new
             {
