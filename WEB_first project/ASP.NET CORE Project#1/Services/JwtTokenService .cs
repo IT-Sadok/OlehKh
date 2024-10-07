@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace ASP.NET_CORE_Project_1.Services
 {
@@ -20,7 +21,7 @@ namespace ASP.NET_CORE_Project_1.Services
             _userManager = userManager;
         }
 
-        public async Task<string> GenerateJwtTokenAsync(ApplicationUser user)
+        public async Task<JwtSecurityToken> GenerateJwtTokenAsync(ApplicationUser user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");
             var secret = jwtSettings.GetValue<string>("Secret") ?? throw new ArgumentException("JWT Secret key is not configured.");
@@ -29,10 +30,10 @@ namespace ASP.NET_CORE_Project_1.Services
             var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName ?? user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+    {
+        new Claim(ClaimTypes.Name, user.UserName ?? user.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
@@ -40,7 +41,7 @@ namespace ASP.NET_CORE_Project_1.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddHours(4),
                 NotBefore = DateTime.UtcNow,
                 IssuedAt = DateTime.UtcNow,
                 Issuer = jwtSettings.GetValue<string>("Issuer"),
@@ -48,8 +49,10 @@ namespace ASP.NET_CORE_Project_1.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+
+            return token;
         }
+
     }
 }

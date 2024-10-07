@@ -3,6 +3,7 @@ using System;
 using ASP.NET_CORE_Project_1.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ASP.NET_CORE_Project_1.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20240929101042_firstMigration")]
+    partial class firstMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +56,7 @@ namespace ASP.NET_CORE_Project_1.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Account");
                 });
@@ -310,8 +312,8 @@ namespace ASP.NET_CORE_Project_1.Migrations
             modelBuilder.Entity("ASP.NET_CORE_Project_1.Models.Account", b =>
                 {
                     b.HasOne("ASP.NET_CORE_Project_1.Models.ApplicationUser", "User")
-                        .WithOne("Account")
-                        .HasForeignKey("ASP.NET_CORE_Project_1.Models.Account", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -389,8 +391,6 @@ namespace ASP.NET_CORE_Project_1.Migrations
 
             modelBuilder.Entity("ASP.NET_CORE_Project_1.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Account");
-
                     b.Navigation("DriverOrders");
 
                     b.Navigation("PassengerOrders");

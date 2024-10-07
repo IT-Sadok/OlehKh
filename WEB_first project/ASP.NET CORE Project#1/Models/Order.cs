@@ -28,7 +28,7 @@ namespace ASP.NET_CORE_Project_1.Models
         public string Destination { get; set; } = string.Empty;
 
         [Required]
-        public string? Status { get; set; } // Pending, Assigned, Completed, Canceled
+        public string? Status { get; set; }
 
         public DateTime? AssignedAt { get; set; }
         public DateTime? CompletedAt { get; set; }

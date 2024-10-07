@@ -9,6 +9,10 @@ namespace ASP.NET_CORE_Project_1.DTO
         public string? UserName { get; set; }
 
         [Required]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be at least 2 characters long.")]
+        public string? Name { get; set; }
+
+        [Required]
         [StringLength(100, MinimumLength = 6)]
         public string? Password { get; set; }
 
