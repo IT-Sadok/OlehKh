@@ -9,7 +9,10 @@ namespace ASP.NET_CORE_Project_1.Data
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
-            Database.Migrate();
+            if (Database.IsRelational())  // Перевірка, чи це реляційна база даних
+            {
+                Database.Migrate();  // Виконуємо міграції тільки для реляційної БД
+            }
         }
 
         public DbSet<Account> Accounts { get; set; }

@@ -31,7 +31,8 @@ namespace ASP.NET_CORE_Project_1.Services
 
             var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.Name, user.UserName ?? user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
 
