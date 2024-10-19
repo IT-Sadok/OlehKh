@@ -21,7 +21,7 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore './WEB_first project/ASP.NET CORE Project#1.sln'
 
     - name: Run tests
-      run: dotnet test ./WEB_first\ project/TestProject1/TestProject1.csproj
+      run: dotnet test './WEB_first project/TestProject1/TestProject1.csproj'
