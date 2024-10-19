@@ -1,12 +1,8 @@
-name: Run Tests on Pull Request
-
+name: Build and Test .NET Application
 
 on:
   pull_request:
-    branches:
-      - Develop
-    # paths:
-    #   - 'WEB_first_project/**'
+    branches: [ "Develop" ]
 
 jobs:
   build:
@@ -14,15 +10,18 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore './WEB_first_project/ASP.NET_CORE_Project#1.sln'
 
+    - name: Build project
+      run: dotnet build './WEB_first_project/ASP.NET_CORE_Project#1.sln' --configuration Release
+
     - name: Run tests
-      run: dotnet test './WEB_first_project/TestProject1/TestProject1.csproj'
+      run: dotnet test './WEB_first_project/TestProject1/TestProject1.csproj' --configuration Release
