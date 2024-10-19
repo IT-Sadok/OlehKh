@@ -29,7 +29,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Users.Handlers
 
             if (currentUserId != user.Id.ToString() && !request.IsAdmin)
             {
-                return (false, "You are not authorized to update this user.");
+                return (false, "You are not authorized to update this user!");
             }
 
             if (!string.IsNullOrEmpty(request.Model.NewPhoneNumber))
