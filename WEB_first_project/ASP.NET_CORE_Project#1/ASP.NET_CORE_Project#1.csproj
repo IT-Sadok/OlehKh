@@ -26,7 +26,7 @@
     <PackageReference Include="NSubstitute" Version="5.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
     <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="FluentValidation" Version="11.5.1" /> <!-- Додано FluentValidation -->
+    <PackageReference Include="FluentValidation" Version="11.5.1" />
   </ItemGroup>
 
   <ItemGroup>
