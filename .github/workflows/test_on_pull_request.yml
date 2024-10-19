@@ -1,0 +1,27 @@
+name: Run Tests on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - Develop
+    paths:
+      - 'WEB_first project/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Run tests
+      run: dotnet test ./TestProject1/TestProject1.csproj
