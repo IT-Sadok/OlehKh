@@ -5,8 +5,8 @@ on:
   pull_request:
     branches:
       - Develop
-    paths:
-      - 'WEB_first_project/**'
+    # paths:
+    #   - 'WEB_first_project/**'
 
 jobs:
   build:
