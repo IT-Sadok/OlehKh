@@ -14,8 +14,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -44,6 +49,8 @@ builder.Services.AddIdentityConfiguration();
 builder.Services.AddAuthenticationAndAuthorization(builder.Configuration);
 
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 var mapperConfig = new MapperConfiguration(mc =>
 {

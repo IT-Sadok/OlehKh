@@ -52,7 +52,7 @@ namespace TestProject1
 
         private void SeedTestData()
         {
-            _context.Orders.Add(new Order { Id = 1, Status = "Pending" });
+            _context.Orders.Add(new Order { Id = 1, Status = EnumOrderStatus.Pending });
             _context.SaveChanges();
         }
 

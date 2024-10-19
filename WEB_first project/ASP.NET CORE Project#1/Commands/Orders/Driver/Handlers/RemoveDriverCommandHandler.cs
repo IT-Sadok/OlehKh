@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using ASP.NET_CORE_Project_1.Data;
 using Microsoft.EntityFrameworkCore;
+using ASP.NET_CORE_Project_1.Models;
 
 namespace ASP.NET_CORE_Project_1.Commands.Orders.Driver.Handlers
 {
@@ -21,7 +22,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Orders.Driver.Handlers
                 return (false, $"Order with ID {request.OrderId} not found.");
             }
 
-            if (order.Status != "Assigned")
+            if (order.Status != EnumOrderStatus.Assigned)
             {
                 return (false, "Driver can only be removed if the order status is 'Assigned'.");
             }
@@ -32,7 +33,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Orders.Driver.Handlers
             }
 
             order.DriverId = null;
-            order.Status = "Pending";
+            order.Status = EnumOrderStatus.Pending;
 
             await _context.SaveChangesAsync();
             return (true, "Driver removed successfully.");

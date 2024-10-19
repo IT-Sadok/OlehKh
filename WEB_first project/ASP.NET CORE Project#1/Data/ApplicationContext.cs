@@ -9,9 +9,9 @@ namespace ASP.NET_CORE_Project_1.Data
     {
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
-            if (Database.IsRelational())  // Перевірка, чи це реляційна база даних
+            if (Database.IsRelational())
             {
-                Database.Migrate();  // Виконуємо міграції тільки для реляційної БД
+                Database.Migrate();
             }
         }
 
@@ -21,6 +21,13 @@ namespace ASP.NET_CORE_Project_1.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (EnumOrderStatus)Enum.Parse(typeof(EnumOrderStatus), v)
+                );
 
             builder.Entity<ApplicationUser>()
                 .HasMany(u => u.PassengerOrders)

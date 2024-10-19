@@ -55,7 +55,7 @@ namespace ASP.NET_CORE_Project_1.Controllers
                 return Unauthorized();
             }
 
-            var roles = await _mediator.Send(new GetUserRolesQuery(user));
+            var roles = await _mediator.Send(new GetUserRolesQuery());
 
             return Ok(new
             {

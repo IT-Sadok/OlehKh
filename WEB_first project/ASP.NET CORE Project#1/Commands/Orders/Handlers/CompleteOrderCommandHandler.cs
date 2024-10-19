@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using ASP.NET_CORE_Project_1.Data;
 using Microsoft.EntityFrameworkCore;
+using ASP.NET_CORE_Project_1.Models;
 
 namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
 {
@@ -16,12 +17,12 @@ namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
         public async Task<bool> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == request.OrderId);
-            if (order == null || order.Status != "Assigned")
+            if (order == null || order.Status != EnumOrderStatus.Assigned)
             {
                 return false;
             }
 
-            order.Status = "Completed";
+            order.Status = EnumOrderStatus.Completed;
             order.CompletedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

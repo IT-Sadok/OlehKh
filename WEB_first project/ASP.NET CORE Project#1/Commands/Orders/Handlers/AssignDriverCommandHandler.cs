@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using ASP.NET_CORE_Project_1.Data;
 using Microsoft.EntityFrameworkCore;
+using ASP.NET_CORE_Project_1.Models;
 
 namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
 {
@@ -28,7 +29,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
             }
 
             order.DriverId = request.DriverId;
-            order.Status = "Assigned";
+            order.Status = EnumOrderStatus.Assigned;
             await _context.SaveChangesAsync();
 
             return true;

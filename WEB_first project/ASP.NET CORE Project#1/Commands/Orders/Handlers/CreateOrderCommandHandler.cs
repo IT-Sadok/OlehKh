@@ -2,6 +2,7 @@
 using ASP.NET_CORE_Project_1.Data;
 using ASP.NET_CORE_Project_1.Models;
 using ASP.NET_CORE_Project_1.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
 {
@@ -21,7 +22,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Orders.Handlers
                 PassengerId = request.PassengerId,
                 PickupLocation = request.PickupLocation,
                 Destination = request.Destination,
-                Status = "Pending",
+                Status = EnumOrderStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
 
