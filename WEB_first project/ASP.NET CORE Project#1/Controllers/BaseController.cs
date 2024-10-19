@@ -13,7 +13,7 @@ namespace ASP.NET_CORE_Project_1.Controllers
             }
             else
             {
-                var errorMessages = result.Errors != null ? string.Join(", ", result.Errors) : "User information is missing.";
+                var errorMessages = result.Errors != null ? string.Join(", ", result.Errors) : "User information is missing!";
                 return BadRequest(errorMessages);
             }
         }
