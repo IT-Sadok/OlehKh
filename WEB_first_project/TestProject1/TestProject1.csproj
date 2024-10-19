@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ASP.NET CORE Project#1\ASP.NET CORE Project#1.csproj" />
+    <ProjectReference Include="..\ASP.NET CORE Project#1\ASP.NET_CORE_Project#1.csproj" />
   </ItemGroup>
 
   <ItemGroup>
