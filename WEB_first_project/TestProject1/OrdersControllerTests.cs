@@ -15,6 +15,7 @@ using ASP.NET_CORE_Project_1.Commands.Orders;
 
 namespace TestProject1
 {
+    [Collection("Non-Parallel Test Collection")]
     public class OrdersControllerTests
     {
         private readonly IMediator _mediator;
@@ -52,6 +53,8 @@ namespace TestProject1
 
         private void SeedTestData()
         {
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
             _context.Orders.Add(new Order { Id = 1, Status = EnumOrderStatus.Pending });
             _context.SaveChanges();
         }
