@@ -2,7 +2,9 @@ name: Build and Test .NET Application
 
 on:
   pull_request:
-    branches: [ "Develop" ]
+    branches:
+      - main
+      - Develop
 
 jobs:
   build:
@@ -21,7 +23,7 @@ jobs:
       run: dotnet restore './WEB_first_project/ASP.NET_CORE_Project#1.sln'
 
     - name: Build project
-      run: dotnet build './WEB_first_project/ASP.NET_CORE_Project#1.sln' --configuration Release
+      run: dotnet build './WEB_first_project/ASP.NET_CORE_Project#1.sln'
 
     - name: Run tests
-      run: dotnet test './WEB_first_project/TestProject1/TestProject1.csproj' --configuration Release
+      run: dotnet test './WEB_first_project/TestProject1/TestProject1.csproj'

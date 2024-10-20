@@ -28,7 +28,7 @@ namespace ASP.NET_CORE_Project_1.Commands.Users.Handlers
 
             if (currentUserId != user.Id.ToString() && !request.IsAdmin)
             {
-                return (false, "You are not authorized to delete this user!");
+                return (false, "You are not authorized to delete this user.");
             }
 
             var result = await _userManager.DeleteAsync(user);
