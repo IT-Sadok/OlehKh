@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      PROJECT_PATH: './WEB_first_project/ASP.NET_CORE_Project#1'
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -20,10 +23,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore './WEB_first_project/ASP.NET_CORE__Project_1.sln'
-
+        run: dotnet restore "${{ env.PROJECT_PATH }}/ASP.NET_CORE__Project_1.sln"
+  
     - name: Build project
-      run: dotnet build './WEB_first_project/ASP.NET_CORE__Project_1.sln'
-
+        run: dotnet build "${{ env.PROJECT_PATH }}/ASP.NET_CORE__Project_1.sln"
+  
     - name: Run tests
-      run: dotnet test './WEB_first_project/TestProject1/TestProject1.csproj'
+        run: dotnet test "${{ env.PROJECT_PATH }}/TestProject1/TestProject1.csproj"
