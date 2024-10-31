@@ -19,6 +19,9 @@ using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine($"Current Environment: {builder.Environment.EnvironmentName}");
+Console.WriteLine($"Database Connection String: {builder.Configuration.GetConnectionString("Database")}");
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
