@@ -12,34 +12,39 @@ using System.Security.Claims;
 using MediatR;
 using ASP.NET_CORE_Project_1.Commands.Orders;
 
-
 namespace TestProject1
 {
     public class OrdersControllerTests
     {
-        private readonly IMediator _mediator;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly OrdersController _controller;
-        private readonly ApplicationContext _context;
+        private IMediator _mediator;
+        private UserManager<ApplicationUser> _userManager;
+        private OrdersController _controller;
+        private ApplicationContext _context;
 
         public OrdersControllerTests()
         {
+            // Ініціалізація залежностей, які не залежать від DbContext
+            _mediator = Substitute.For<IMediator>();
+            _userManager = Substitute.For<UserManager<ApplicationUser>>(
+                Substitute.For<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
+        }
+
+        private void SetUp()
+        {
+            // Створення унікального DbContext для кожного тесту
             var options = new DbContextOptionsBuilder<ApplicationContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             _context = new ApplicationContext(options);
 
-            _mediator = Substitute.For<IMediator>();
-            _userManager = Substitute.For<UserManager<ApplicationUser>>(
-                Substitute.For<IUserStore<ApplicationUser>>(), null, null, null, null, null, null, null, null);
-
+            // Повторне налаштування контролера з новим контекстом
             _controller = new OrdersController(_mediator, _userManager);
 
             var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
             {
-            new Claim(ClaimTypes.Name, "DriverUser"),
-            new Claim(ClaimTypes.Role, "Driver")
+                new Claim(ClaimTypes.Name, "DriverUser"),
+                new Claim(ClaimTypes.Role, "Driver")
             }, "TestAuthentication"));
 
             _controller.ControllerContext = new ControllerContext
@@ -47,7 +52,7 @@ namespace TestProject1
                 HttpContext = new DefaultHttpContext { User = user }
             };
 
-            SeedTestData();
+            SeedTestData(); // Додавання початкових даних після створення нового контексту
         }
 
         private void SeedTestData()
@@ -79,13 +84,12 @@ namespace TestProject1
             // Arrange
             SetUp();
             var user = new ApplicationUser { Id = Guid.NewGuid() };
-
             _userManager.GetUserAsync(Arg.Any<ClaimsPrincipal>()).Returns(Task.FromResult(user));
-
             _userManager.IsInRoleAsync(user, "Driver").Returns(Task.FromResult(false));
+
             _controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-            new Claim(ClaimTypes.Name, "TestUser"),
-            new Claim(ClaimTypes.Role, "Passenger")
+                new Claim(ClaimTypes.Name, "TestUser"),
+                new Claim(ClaimTypes.Role, "Passenger")
             }));
 
             // Act
@@ -93,14 +97,6 @@ namespace TestProject1
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result);
-        }
-
-        private void SetUp()
-        {
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
-
-            SeedTestData();
         }
     }
 }
