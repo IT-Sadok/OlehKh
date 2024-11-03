@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      PROJECT_PATH: './WEB_first_project/ASP.NET_CORE_Project_1'
+      PROJECT_PATH: './WEB_first_project'
 
     steps:
     - name: Checkout code
