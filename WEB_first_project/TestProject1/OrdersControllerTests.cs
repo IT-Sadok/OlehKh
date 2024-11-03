@@ -60,6 +60,7 @@ namespace TestProject1
         public async Task AssignDriver_UserIsDriver_AssignsDriverSuccessfully()
         {
             // Arrange
+            SetUp();
             var user = new ApplicationUser { Id = Guid.NewGuid() };
             _userManager.GetUserAsync(Arg.Any<ClaimsPrincipal>()).Returns(Task.FromResult(user));
             _mediator.Send(Arg.Any<AssignDriverCommand>()).Returns(Task.FromResult(true));
@@ -76,6 +77,7 @@ namespace TestProject1
         public async Task AssignDriver_UserNotDriver_ReturnsUnauthorized()
         {
             // Arrange
+            SetUp();
             var user = new ApplicationUser { Id = Guid.NewGuid() };
 
             _userManager.GetUserAsync(Arg.Any<ClaimsPrincipal>()).Returns(Task.FromResult(user));
@@ -91,6 +93,14 @@ namespace TestProject1
 
             // Assert
             Assert.IsType<UnauthorizedResult>(result);
+        }
+
+        private void SetUp()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+
+            SeedTestData();
         }
     }
 }
